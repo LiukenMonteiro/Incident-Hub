@@ -13,6 +13,7 @@
     <aside>
       <dl>
         <div><dt>Responsável</dt><dd><%= incident.assignee %></dd></div>
+        <div><dt>Data de criação</dt><dd><%= formatDateTime(incident.created_at) %></dd></div>
         <div><dt>Última atualização</dt><dd><%= formatDateTime(incident.updated_at) %></dd></div>
         <div><dt>Status atual</dt><dd><%= incident.status %></dd></div>
       </dl>

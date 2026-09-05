@@ -83,11 +83,11 @@ describe('Incident Hub', () => {
   });
 
   describe('Detalhes do Incidente (Requisito 6)', () => {
-    it('exibe todos os detalhes do incidente', async () => {
+    it('exibe todos os detalhes do incidente (título, descrição, severidade, responsável, status, criação e atualização)', async () => {
       const { app, db } = testApplication();
       db.prepare(`
-        INSERT INTO incidents (identifier, title, description, severity, assignee, status)
-        VALUES ('INC-0001', 'Erro na emissão', 'Falha no certificado.', 'High', 'Ana', 'In Progress')
+        INSERT INTO incidents (identifier, title, description, severity, assignee, status, created_at, updated_at)
+        VALUES ('INC-0001', 'Erro na emissão', 'Falha no certificado.', 'High', 'Ana', 'In Progress', '2026-09-05 10:00:00', '2026-09-05 11:30:00')
       `).run();
 
       const response = await request(app).get('/incidents/1');
@@ -98,6 +98,10 @@ describe('Incident Hub', () => {
       expect(response.text).toContain('High');
       expect(response.text).toContain('Ana');
       expect(response.text).toContain('In Progress');
+      // Data de criação: 10:00 UTC -> 07:00 SP
+      expect(response.text).toContain('05/09/2026, 07:00');
+      // Última atualização: 11:30 UTC -> 08:30 SP
+      expect(response.text).toContain('05/09/2026, 08:30');
     });
 
     it('retorna 404 quando o incidente não for encontrado', async () => {
