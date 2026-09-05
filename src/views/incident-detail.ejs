@@ -2,7 +2,51 @@
 <main id="conteudo" class="page-shell narrow">
   <a class="back-link" href="/">← Voltar ao painel</a>
   <% if (created) { %><div class="success-message" role="status">Incidente <strong><%= incident.identifier %></strong> criado com status Open.</div><% } %>
+  <% if (typeof updated !== 'undefined' && updated) { %><div class="success-message" role="status">Status do incidente <strong><%= incident.identifier %></strong> atualizado com sucesso.</div><% } %>
+  <% if (typeof error !== 'undefined' && error) { %><div class="error-summary" role="alert"><p><%= error %></p></div><% } %>
   <section class="detail-head reveal"><p class="eyebrow"><%= incident.identifier %> · criado em <%= formatDateTime(incident.created_at) %></p><div class="detail-title-row"><h1><%= incident.title %></h1><span class="badge severity-<%= incident.severity.toLowerCase() %>"><%= incident.severity %></span></div><span class="status"><i class="status-dot status-<%= incident.status.toLowerCase().replace(' ', '-') %>"></i><%= incident.status %></span></section>
-  <section class="detail-grid reveal"><article><h2>Descrição</h2><p class="description"><%= incident.description %></p></article><aside><dl><div><dt>Responsável</dt><dd><%= incident.assignee %></dd></div><div><dt>Última atualização</dt><dd><%= formatDateTime(incident.updated_at) %></dd></div><div><dt>Status</dt><dd><%= incident.status %></dd></div></dl></aside></section>
+  <section class="detail-grid reveal">
+    <article>
+      <h2>Descrição</h2>
+      <p class="description"><%= incident.description %></p>
+    </article>
+    <aside>
+      <dl>
+        <div><dt>Responsável</dt><dd><%= incident.assignee %></dd></div>
+        <div><dt>Última atualização</dt><dd><%= formatDateTime(incident.updated_at) %></dd></div>
+        <div><dt>Status atual</dt><dd><%= incident.status %></dd></div>
+      </dl>
+      <form class="status-form" method="post" action="/incidents/<%= incident.id %>/status">
+        <label for="status-select">Alterar status</label>
+        <div class="status-action-row">
+          <select id="status-select" name="status">
+            <% (typeof statuses !== 'undefined' ? statuses : ['Open', 'In Progress', 'Resolved']).forEach((st) => { %>
+              <option value="<%= st %>" <%= incident.status === st ? 'selected' : '' %>><%= st %></option>
+            <% }) %>
+          </select>
+          <button class="button button-primary" type="submit">Salvar</button>
+        </div>
+      </form>
+    </aside>
+  </section>
+  <section class="history-section reveal" aria-labelledby="history-heading">
+    <h2 id="history-heading">Histórico de alterações</h2>
+    <% if (typeof history !== 'undefined' && history && history.length) { %>
+      <ul class="history-timeline">
+        <% history.forEach((item) => { %>
+          <li class="history-item">
+            <time datetime="<%= item.changed_at %>"><%= formatDateTime(item.changed_at) %></time>
+            <span class="history-change">
+              <span class="status"><i class="status-dot status-<%= item.from_status.toLowerCase().replace(' ', '-') %>"></i><%= item.from_status %></span>
+              <span class="history-arrow" aria-hidden="true">→</span>
+              <span class="status"><i class="status-dot status-<%= item.to_status.toLowerCase().replace(' ', '-') %>"></i><%= item.to_status %></span>
+            </span>
+          </li>
+        <% }) %>
+      </ul>
+    <% } else { %>
+      <p class="empty-history">Nenhuma alteração de status registrada até o momento.</p>
+    <% } %>
+  </section>
 </main>
 <%- include('partials/footer') %>

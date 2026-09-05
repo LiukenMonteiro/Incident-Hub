@@ -6,8 +6,10 @@ const {
   STATUSES,
   createIncident,
   findIncidentById,
+  getIncidentHistory,
   incidentSummary,
-  listIncidents
+  listIncidents,
+  updateIncidentStatus
 } = require('./db');
 
 function createApp(db) {
@@ -68,8 +70,32 @@ function createApp(db) {
 
     return response.render('incident-detail', {
       incident,
-      created: request.query.created === '1'
+      history: getIncidentHistory(db, incident.id),
+      statuses: STATUSES,
+      error: null,
+      created: request.query.created === '1',
+      updated: request.query.updated === '1'
     });
+  });
+
+  app.post('/incidents/:id/status', (request, response) => {
+    const incident = findIncidentById(db, request.params.id);
+    if (!incident) return response.status(404).render('not-found');
+
+    const newStatus = request.body.status;
+    try {
+      updateIncidentStatus(db, incident.id, newStatus);
+      return response.redirect(`/incidents/${incident.id}?updated=1`);
+    } catch (error) {
+      return response.status(error.statusCode || 400).render('incident-detail', {
+        incident,
+        history: getIncidentHistory(db, incident.id),
+        statuses: STATUSES,
+        error: error.message,
+        created: false,
+        updated: false
+      });
+    }
   });
 
   return app;

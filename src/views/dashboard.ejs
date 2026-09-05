@@ -13,9 +13,9 @@
   </section>
 
   <section class="metrics" aria-label="Resumo dos incidentes">
-    <article class="metric-card metric-blue reveal"><span>Em aberto</span><strong><%= summary.open %></strong><small>precisam de triagem</small></article>
-    <article class="metric-card metric-coral reveal"><span>Em andamento</span><strong><%= summary.inProgress %></strong><small>em tratamento agora</small></article>
-    <article class="metric-card metric-gold reveal"><span>Atenção prioritária</span><strong><%= summary.needsAttention %></strong><small>high ou critical ativos</small></article>
+    <article class="metric-card metric-blue reveal"><span>Em aberto</span><strong><%= summary.open %></strong><small>atualmente abertos</small></article>
+    <article class="metric-card metric-coral reveal"><span>Críticos pendentes</span><strong><%= summary.criticalUnresolved %></strong><small>Critical não resolvidos</small></article>
+    <article class="metric-card metric-gold reveal"><span>Resolvidos</span><strong><%= summary.resolved %></strong><small>concluídos com sucesso</small></article>
   </section>
 
   <section class="incident-section reveal" aria-labelledby="incidentes-title">
