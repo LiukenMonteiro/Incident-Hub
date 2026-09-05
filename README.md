@@ -36,6 +36,24 @@ O **Incident Hub** foi desenvolvido para centralizar o fluxo operacional de inci
 
 > Os filtros usam URLs como `/?status=Open&severity=Critical` para manter o estado da busca. Com JavaScript ativo, apenas a lista de incidentes é atualizada; sem JavaScript, os links continuam funcionando.
 
+## ☁️ Deploy recomendado: Railway
+
+Para a versão atual, use Railway em vez de Vercel. A aplicação é um servidor Express persistente e usa SQLite local; o Railway permite executar o Dockerfile e associar um volume persistente ao diretório `/app/data`.
+
+1. Crie um projeto no Railway e conecte o repositório do GitHub.
+2. Selecione o serviço da aplicação. O Railway detectará o `Dockerfile` automaticamente.
+3. Adicione um **Volume** com mount path `/app/data`.
+4. Configure as variáveis:
+
+```text
+DATABASE_PATH=/app/data/incident-hub.db
+DISPLAY_TIME_ZONE=America/Sao_Paulo
+```
+
+5. Gere um domínio público pelo serviço e abra a URL fornecida pelo Railway.
+
+Não use o disco local da Vercel para este SQLite: funções da Vercel são efêmeras e podem perder os dados. Para usar Vercel no futuro, seria necessário migrar a persistência para um banco externo, como PostgreSQL, e adaptar a aplicação.
+
 ## 🚀 Como Executar com Docker (Recomendado)
 
 O projeto foi projetado para iniciar de forma simples e consistente em qualquer sistema operacional compatível com Docker.
