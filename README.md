@@ -36,6 +36,18 @@ O **Incident Hub** foi desenvolvido para centralizar o fluxo operacional de inci
 
 > Os filtros usam URLs como `/?status=Open&severity=Critical` para manter o estado da busca. Com JavaScript ativo, apenas a lista de incidentes é atualizada; sem JavaScript, os links continuam funcionando.
 
+### Reset dos dados locais de teste
+
+O reset local apaga todos os incidentes e históricos armazenados no SQLite. Pare a aplicação antes de executar:
+
+```bash
+rm -rf data
+mkdir -p data
+npm start
+```
+
+Como a base estará vazia, a aplicação carregará novamente os três incidentes de exemplo ao iniciar. Esse procedimento é somente para a execução local; não use `rm -rf data` no ambiente Railway, pois os dados de produção estão no volume persistente.
+
 ## ☁️ Deploy recomendado: Railway
 
 Para a versão atual, use Railway em vez de Vercel. A aplicação é um servidor Express persistente e usa SQLite local; o Railway permite executar o Dockerfile e associar um volume persistente ao diretório `/app/data`.
