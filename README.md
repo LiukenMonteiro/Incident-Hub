@@ -2,6 +2,8 @@
 
 Central operacional simples, rápida e persistente para registro, triagem e acompanhamento de incidentes por pequenas equipes em ambiente compartilhado.
 
+Para consultar o resumo da entrega, validações e funcionalidades implementadas, veja o [FINAL_REPORT.md](FINAL_REPORT.md).
+
 ---
 
 ## 🎯 Sobre o Projeto
