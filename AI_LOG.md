@@ -238,3 +238,29 @@ A suíte de testes automatizados com Vitest foi ampliada e validada com 6 testes
 #### Decisão
 
 Adotar filtragem assíncrona com substituição de fragmentos de DOM e fallback progressivo (caso o JavaScript esteja desabilitado, o formulário tradicional continua funcional).
+
+### 2026-09-05 — Desenvolvimento orientado a testes (TDD) para regras de negócio, histórico e métricas
+
+#### Objetivo
+
+Garantir robustez, consistência e evitar quebras de escopo por meio de desenvolvimento orientado a testes funcionais e reais cobrindo o ciclo de vida completo dos incidentes.
+
+#### Contexto
+
+A especificação técnica exige regras de negócio críticas (como o bloqueio de resolução direta para incidentes de severidade Critical), rastreabilidade de alterações via histórico persistido, métricas essenciais no dashboard e dados iniciais (seed) para avaliação imediata.
+
+#### Instrução
+
+Estruturar no arquivo `tests/app.test.js` uma suíte completa de testes funcionais que exercitem os endpoints HTTP, regras de validação, integridade do banco SQLite e formatação temporal. Em seguida, implementar a tabela de histórico (`incident_history`), as rotas de transição de status (`POST /incidents/:id/status`), a carga de dados iniciais (`seedInitialData`) e a visão resumida do dashboard.
+
+#### Resultado
+
+A aplicação passou a registrar e persistir o histórico de cada transição de status em ordem cronológica, bloquear transições diretas de `Open` para `Resolved` em incidentes Critical com feedback amigável (status 422), exibir contadores exatos de incidentes abertos, críticos pendentes e resolvidos, e popular automaticamente os 3 incidentes de exemplo caso o banco de dados esteja vazio.
+
+#### Validação
+
+A suíte completa de testes no Vitest foi executada e aprovada com 14 testes passando (`14 passed`). O contêiner Docker foi reconstruído com `docker compose up -d --build` e verificado em execução.
+
+#### Decisão
+
+Manter a cobertura de testes funcionais automatizados como requisito de validação para qualquer nova alteração ou expansão de funcionalidade no Incident Hub.
