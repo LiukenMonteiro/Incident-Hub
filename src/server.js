@@ -14,10 +14,10 @@ function ensurePersistentDatabasePath() {
     throw new Error(`Persistência obrigatória: crie um volume Railway montado em ${dataDirectory}.`);
   }
 
-  const directoryStats = fs.statSync(dataDirectory);
-  const parentStats = fs.statSync(path.dirname(dataDirectory));
-  if (directoryStats.dev === parentStats.dev) {
-    throw new Error(`Persistência obrigatória: ${dataDirectory} existe, mas não está montado como volume.`);
+  try {
+    fs.accessSync(dataDirectory, fs.constants.R_OK | fs.constants.W_OK);
+  } catch {
+    throw new Error(`Persistência obrigatória: ${dataDirectory} não está acessível para leitura e escrita.`);
   }
 }
 
