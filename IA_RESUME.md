@@ -7,10 +7,10 @@ Este arquivo permite que outra IA ou pessoa retome o trabalho sem precisar infer
 ## Checkpoint atual
 
 - **Data:** 2026-09-05
-- **Etapa:** documentação e planejamento inicial
+- **Etapa:** planejamento concluído; início da implementação
 - **Branch principal:** `main`
 - **Aplicação implementada:** não
-- **Stack definida:** parcialmente — Docker e SQLite
+- **Stack definida:** Python, Flask, SQLite, SQLAlchemy, Docker e pytest
 
 ## O que já existe
 
@@ -24,12 +24,14 @@ Este arquivo permite que outra IA ou pessoa retome o trabalho sem precisar infer
 - A primeira implementação deve começar por descoberta e definição de MVP antes de escolher tecnologias.
 - O projeto usará Docker para execução em diferentes sistemas operacionais e SQLite para persistência leve.
 - As imagens Docker devem ser oficiais, estáveis e enxutas; o volume do SQLite deve ser persistente.
+- A aplicação usará Flask com templates renderizados no servidor, SQLAlchemy para persistência e pytest para testes.
+- A implementação seguirá marcos pequenos e verificáveis, com documentação atualizada quando relevante.
 - Commits devem ser descritivos.
 - Informações sensíveis e dados reais de incidentes não devem ser versionados.
 
 ## Próxima ação recomendada
 
-Conduzir a descoberta do MVP: definir usuários, permissões, fluxo de estados do incidente e requisitos mínimos. Em seguida, registrar as decisões neste arquivo e escolher a stack.
+Criar a fundação técnica: estrutura inicial do projeto Flask, dependências, Docker e testes básicos. Executar e validar essa primeira parte antes de avançar.
 
 ## Regras para continuidade
 

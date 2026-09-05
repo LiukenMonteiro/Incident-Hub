@@ -108,3 +108,29 @@ A futura implementação deverá iniciar corretamente em ambientes suportados pe
 #### Decisão
 
 Prosseguir com uma arquitetura enxuta baseada em Docker e SQLite, priorizando baixo consumo de processamento, persistência de dados e facilidade de uso.
+
+### 2026-09-05 — Estratégia de desenvolvimento incremental
+
+#### Objetivo
+
+Manter o desenvolvimento organizado.
+
+#### Contexto
+
+O usuário deseja que a solução seja documentada de forma concisa e descritiva, preservando a qualidade de `AI_LOG.md`, `IA_RESUME.md` e `PLAN.md`.
+
+#### Instrução
+
+Implementar o projeto em partes pequenas, pois mudanças grandes podem comprometer os registros de log, o checkpoint e o plano.
+
+#### Resultado
+
+Foi definido que o desenvolvimento seguirá marcos menores e verificáveis, com documentação atualizada conforme a relevância de cada etapa.
+
+#### Validação
+
+Cada marco será validado por revisão das alterações, testes proporcionais à funcionalidade e conferência da documentação relacionada.
+
+#### Decisão
+
+Iniciar o desenvolvimento do código pela fundação técnica e avançar uma parte pequena por vez.
