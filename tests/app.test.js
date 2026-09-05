@@ -1,6 +1,6 @@
 const request = require('supertest');
 const { createApp } = require('../src/app');
-const { createDatabase, findIncidentById, getIncidentHistory, seedInitialData } = require('../src/db');
+const { createDatabase, findIncidentById, getIncidentHistory, seedDemoData, seedInitialData } = require('../src/db');
 const { formatDateTime } = require('../src/formatters');
 
 function testApplication() {
@@ -303,6 +303,19 @@ describe('Incident Hub', () => {
       expect(findIncidentById(db, 1).title).toBe('Payment API instability');
       expect(findIncidentById(db, 2).title).toBe('Reconciliation delay');
       expect(findIncidentById(db, 3).title).toBe('Incorrect customer notification');
+    });
+
+    it('repõe exemplos ausentes sem remover dados existentes', () => {
+      const db = createDatabase(':memory:');
+      db.prepare(`
+        INSERT INTO incidents (identifier, title, description, severity, assignee, status)
+        VALUES ('INC-0001', 'Incidente do avaliador', 'Dado próprio.', 'Low', 'Equipe', 'Open')
+      `).run();
+
+      expect(seedDemoData(db)).toBe(true);
+      expect(db.prepare('SELECT COUNT(*) AS count FROM incidents').get().count).toBe(4);
+      expect(findIncidentById(db, 1).title).toBe('Incidente do avaliador');
+      expect(seedDemoData(db)).toBe(false);
     });
   });
 

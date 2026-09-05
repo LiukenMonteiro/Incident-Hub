@@ -32,7 +32,7 @@ O **Incident Hub** foi desenvolvido para centralizar o fluxo operacional de inci
 4. Use os filtros de status e severidade para analisar o cenário operacional.
 5. Em cada incidente, você pode editar título e descrição, alterar o status, acompanhar o histórico ou excluir o registro com confirmação.
 
-> O botão **Dados de teste** foi pensado para avaliação do sistema sem exigir cadastro manual de vários registros.
+> O botão **Dados de teste** foi pensado para avaliação do sistema sem exigir cadastro manual de vários registros. Ele repõe apenas os exemplos ausentes e preserva os incidentes já cadastrados.
 
 > Os filtros usam URLs como `/?status=Open&severity=Critical` para manter o estado da busca. Com JavaScript ativo, apenas a lista de incidentes é atualizada; sem JavaScript, os links continuam funcionando.
 

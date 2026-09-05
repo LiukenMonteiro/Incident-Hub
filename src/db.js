@@ -182,8 +182,17 @@ function seedInitialData(db) {
   const count = db.prepare('SELECT COUNT(*) AS count FROM incidents').get().count;
   if (count > 0) return false;
 
+  return seedDemoData(db);
+}
+
+function seedDemoData(db) {
+  let inserted = 0;
+
   const insert = db.transaction(() => {
     for (const data of INITIAL_INCIDENTS) {
+      const existing = db.prepare('SELECT id FROM incidents WHERE title = ?').get(data.title);
+      if (existing) continue;
+
       const result = db.prepare(`
         INSERT INTO incidents (title, description, severity, assignee, status)
         VALUES (@title, @description, @severity, @assignee, @status)
@@ -191,11 +200,12 @@ function seedInitialData(db) {
 
       const identifier = `INC-${String(result.lastInsertRowid).padStart(4, '0')}`;
       db.prepare('UPDATE incidents SET identifier = ? WHERE id = ?').run(identifier, result.lastInsertRowid);
+      inserted += 1;
     }
   });
 
   insert();
-  return true;
+  return inserted > 0;
 }
 
 module.exports = {
@@ -209,6 +219,7 @@ module.exports = {
   incidentSummary,
   listIncidents,
   seedInitialData,
+  seedDemoData,
   updateIncidentStatus,
   updateIncidentDetails
 };

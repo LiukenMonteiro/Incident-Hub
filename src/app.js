@@ -10,6 +10,7 @@ const {
   getIncidentHistory,
   incidentSummary,
   listIncidents,
+  seedDemoData,
   seedInitialData,
   updateIncidentDetails,
   updateIncidentStatus
@@ -43,8 +44,8 @@ function createApp(db) {
   });
 
   app.post('/seed-demo-data', (_request, response) => {
-    const wasEmpty = seedInitialData(db);
-    if (!wasEmpty) {
+    const seeded = seedDemoData(db);
+    if (!seeded) {
       return response.redirect('/?seed=already-loaded');
     }
 
