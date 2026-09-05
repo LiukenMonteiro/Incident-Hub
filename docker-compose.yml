@@ -6,6 +6,7 @@ services:
     environment:
       DATABASE_PATH: /app/data/incident-hub.db
       DISPLAY_TIME_ZONE: America/Sao_Paulo
+      REQUIRE_PERSISTENT_DATABASE: "true"
     volumes:
       - incident-hub-data:/app/data
 

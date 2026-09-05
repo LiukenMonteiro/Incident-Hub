@@ -60,6 +60,7 @@ Para a versão atual, use Railway em vez de Vercel. A aplicação é um servidor
 ```text
 DATABASE_PATH=/app/data/incident-hub.db
 DISPLAY_TIME_ZONE=America/Sao_Paulo
+REQUIRE_PERSISTENT_DATABASE=true
 ```
 
 5. Gere um domínio público pelo serviço e abra a URL fornecida pelo Railway.
@@ -70,7 +71,7 @@ A aplicação está disponível em:
 
 https://incident-hub-production.up.railway.app/
 
-O endereço foi validado com resposta HTTP 200. O banco SQLite está associado a um volume persistente do Railway montado em `/app/data`.
+O endereço foi validado com resposta HTTP 200. O banco SQLite deve estar associado a um volume persistente do Railway montado em `/app/data`. A aplicação agora encerra o deploy se esse volume não estiver montado, em vez de iniciar com um banco efêmero e perder dados no próximo redeploy.
 
 Não use o disco local da Vercel para este SQLite: funções da Vercel são efêmeras e podem perder os dados. Para usar Vercel no futuro, seria necessário migrar a persistência para um banco externo, como PostgreSQL, e adaptar a aplicação.
 
