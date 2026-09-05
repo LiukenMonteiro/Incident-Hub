@@ -134,3 +134,55 @@ Cada marco será validado por revisão das alterações, testes proporcionais à
 #### Decisão
 
 Iniciar o desenvolvimento do código pela fundação técnica e avançar uma parte pequena por vez.
+
+### 2026-09-05 — Migração da stack para JavaScript
+
+#### Objetivo
+
+Reduzir o gasto de tokens, usar uma linguagem familiar ao responsável pelo projeto e trabalhar de forma mais consciente no desenvolvimento web.
+
+#### Contexto
+
+O Incident Hub será uma aplicação web. A implementação ainda não havia começado, portanto a mudança de stack não exigiria retrabalho de código.
+
+#### Instrução
+
+Substituir a stack inicialmente planejada em Python por uma stack JavaScript, mantendo Docker e SQLite como decisões técnicas vigentes.
+
+#### Resultado
+
+O plano passou a adotar Node.js, Express, templates renderizados no servidor, SQLite e Vitest para testes.
+
+#### Validação
+
+A fundação técnica será considerada validada quando a aplicação JavaScript iniciar pelo Docker, os testes automatizados passarem e os dados SQLite persistirem após reiniciar o contêiner.
+
+#### Decisão
+
+Prosseguir com JavaScript por ser mais familiar ao responsável e adequado ao escopo de uma aplicação web pequena.
+
+### 2026-09-05 — Tema escuro persistente
+
+#### Objetivo
+
+Oferecer uma experiência visual mais confortável para pessoas que trabalham à noite ou passam longos períodos em frente a telas, como integrantes de equipes de operações e enfermagem.
+
+#### Contexto
+
+O dashboard inicial já possuía um tema claro de cores calmas. Parte do público pode registrar incidentes em turnos noturnos ou em condições de cansaço visual.
+
+#### Instrução
+
+Adicionar um toggle para alternar para uma versão escura persistente da interface.
+
+#### Resultado
+
+O cabeçalho passou a incluir um seletor de tema. A preferência é salva no navegador por `localStorage` e aplicada ao abrir novamente a aplicação. O tema escuro preserva contraste e a identidade de cores do dashboard.
+
+#### Validação
+
+O contêiner foi reconstruído, e o dashboard, o JavaScript do tema e os estilos do tema escuro foram servidos corretamente. A persistência é implementada pela chave `incident-hub-theme` no armazenamento local do navegador.
+
+#### Decisão
+
+Manter o tema claro como padrão e disponibilizar o tema escuro como escolha persistente e acessível ao usuário.

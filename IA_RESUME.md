@@ -7,10 +7,10 @@ Este arquivo permite que outra IA ou pessoa retome o trabalho sem precisar infer
 ## Checkpoint atual
 
 - **Data:** 2026-09-05
-- **Etapa:** planejamento concluído; início da implementação
+- **Etapa:** fundação técnica e primeiro fluxo implementados
 - **Branch principal:** `main`
-- **Aplicação implementada:** não
-- **Stack definida:** Python, Flask, SQLite, SQLAlchemy, Docker e pytest
+- **Aplicação implementada:** sim — dashboard e criação de incidentes
+- **Stack definida:** JavaScript, Node.js, Express, SQLite, Docker e Vitest
 
 ## O que já existe
 
@@ -24,14 +24,16 @@ Este arquivo permite que outra IA ou pessoa retome o trabalho sem precisar infer
 - A primeira implementação deve começar por descoberta e definição de MVP antes de escolher tecnologias.
 - O projeto usará Docker para execução em diferentes sistemas operacionais e SQLite para persistência leve.
 - As imagens Docker devem ser oficiais, estáveis e enxutas; o volume do SQLite deve ser persistente.
-- A aplicação usará Flask com templates renderizados no servidor, SQLAlchemy para persistência e pytest para testes.
+- A aplicação usará Node.js com Express e templates renderizados no servidor; SQLite persistirá os dados e Vitest cobrirá os testes.
+- A primeira versão atenderá uma pequena equipe em um único ambiente compartilhado, sem autenticação, permissões ou múltiplos tenants.
+- O dashboard possui tema claro e um tema escuro persistente, salvo no `localStorage` do navegador para conforto em turnos noturnos.
 - A implementação seguirá marcos pequenos e verificáveis, com documentação atualizada quando relevante.
 - Commits devem ser descritivos.
 - Informações sensíveis e dados reais de incidentes não devem ser versionados.
 
 ## Próxima ação recomendada
 
-Criar a fundação técnica: estrutura inicial do projeto Flask, dependências, Docker e testes básicos. Executar e validar essa primeira parte antes de avançar.
+Implementar a atualização de incidentes: permitir alterar o status entre Open, In Progress e Resolved, atualizar a data/hora de modificação e cobrir o fluxo com testes.
 
 ## Regras para continuidade
 

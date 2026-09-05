@@ -8,6 +8,7 @@ O Incident Hub será uma aplicação web pequena para registrar e acompanhar inc
 
 ### Obrigatório
 
+- Operação em um único ambiente compartilhado por uma pequena equipe de operações.
 - Interface web para criar, listar, visualizar e atualizar incidentes.
 - Campos essenciais: título, descrição, status, severidade, responsável e datas relevantes.
 - Persistência em SQLite após reiniciar o contêiner Docker.
@@ -19,7 +20,7 @@ O Incident Hub será uma aplicação web pequena para registrar e acompanhar inc
 
 - Filtros por status e severidade.
 - Linha do tempo de atualizações do incidente.
-- Interface responsiva e acessível.
+- Interface responsiva, acessível e com tema escuro persistente para reduzir o cansaço visual em turnos noturnos.
 - Dados de exemplo e histórico simples de alterações.
 
 ### Fora de escopo
@@ -34,13 +35,13 @@ O Incident Hub será uma aplicação web pequena para registrar e acompanhar inc
 
 ### Stack
 
-- **Backend e interface:** Python com Flask e templates HTML renderizados no servidor.
+- **Backend e interface:** JavaScript com Node.js, Express e templates HTML renderizados no servidor.
 - **Estilos:** CSS próprio, sem bibliotecas pesadas.
-- **Banco de dados:** SQLite, acessado com SQLAlchemy.
-- **Testes:** `pytest` e cliente de testes do Flask.
-- **Execução:** Docker com imagem oficial, estável e enxuta `python:slim`.
+- **Banco de dados:** SQLite, acessado por uma biblioteca JavaScript leve.
+- **Testes:** Vitest e Supertest para os fluxos HTTP.
+- **Execução:** Docker com imagem oficial, estável e enxuta `node:slim`.
 
-Essa stack reduz componentes, consumo de recursos e manutenção. Templates no servidor evitam um frontend separado, e SQLite é suficiente para um sistema pequeno com persistência local.
+Essa stack reduz componentes, consumo de recursos e manutenção. JavaScript é familiar ao responsável pelo projeto; templates no servidor evitam um frontend separado, e SQLite é suficiente para um sistema pequeno com persistência local.
 
 ### Persistência
 
@@ -49,17 +50,17 @@ O arquivo SQLite ficará em um diretório de dados montado como volume Docker. A
 ### Estrutura geral da solução
 
 ```text
-app/
-  __init__.py       # criação da aplicação e configurações
-  models.py         # entidades e acesso a dados
-  routes.py         # rotas e fluxos web
-  templates/        # páginas HTML
-  static/           # CSS e recursos estáticos
+src/
+  app.js            # criação da aplicação e configurações
+  db.js             # conexão e acesso ao SQLite
+  routes/           # rotas e fluxos web
+  views/            # templates HTML
+  public/           # CSS e recursos estáticos
 tests/              # testes automatizados
 data/               # banco SQLite local (ignorado pelo Git)
 Dockerfile
 docker-compose.yml
-requirements.txt
+package.json
 README.md
 ```
 
@@ -71,7 +72,7 @@ Os testes cobrirão criação, consulta e atualização de incidentes, além das
 
 ## Decomposição
 
-1. Criar a estrutura Python, dependências e configuração Docker.
+1. Criar a estrutura Node.js, dependências e configuração Docker.
 2. Modelar a entidade de incidente e configurar SQLite persistente.
 3. Implementar páginas e rotas para criar, listar, detalhar e atualizar incidentes.
 4. Aplicar estilos, validações e mensagens de feedback.

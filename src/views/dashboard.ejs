@@ -1,0 +1,42 @@
+<%- include('partials/header') %>
+<main id="conteudo" class="page-shell">
+  <section class="hero reveal">
+    <div>
+      <p class="eyebrow">Central operacional · ambiente compartilhado</p>
+      <h1>Clareza para agir<br><em>no momento certo.</em></h1>
+      <p class="hero-copy">Acompanhe o que exige atenção, quem está cuidando e o que já avançou — sem depender de conversas dispersas.</p>
+    </div>
+    <div class="hero-orbit" aria-hidden="true">
+      <span class="orbit-dot dot-blue"></span><span class="orbit-dot dot-coral"></span><span class="orbit-dot dot-gold"></span>
+      <span class="orbit-core">Agora</span>
+    </div>
+  </section>
+
+  <section class="metrics" aria-label="Resumo dos incidentes">
+    <article class="metric-card metric-blue reveal"><span>Em aberto</span><strong><%= summary.open %></strong><small>precisam de triagem</small></article>
+    <article class="metric-card metric-coral reveal"><span>Em andamento</span><strong><%= summary.inProgress %></strong><small>em tratamento agora</small></article>
+    <article class="metric-card metric-gold reveal"><span>Atenção prioritária</span><strong><%= summary.needsAttention %></strong><small>high ou critical ativos</small></article>
+  </section>
+
+  <section class="incident-section reveal" aria-labelledby="incidentes-title">
+    <div class="section-heading">
+      <div><p class="eyebrow">Visão geral</p><h2 id="incidentes-title">Incidentes recentes <span><%= summary.total %></span></h2></div>
+      <a class="text-link" href="/incidents/new">Adicionar novo <span aria-hidden="true">→</span></a>
+    </div>
+    <% if (incidents.length) { %>
+      <div class="incident-table-wrap"><table>
+        <thead><tr><th>Incidente</th><th>Severidade</th><th>Responsável</th><th>Status</th><th>Atualizado</th></tr></thead>
+        <tbody><% incidents.forEach((incident) => { %><tr>
+          <td><a class="incident-title" href="/incidents/<%= incident.id %>"><span><%= incident.identifier %></span><strong><%= incident.title %></strong></a></td>
+          <td><span class="badge severity-<%= incident.severity.toLowerCase() %>"><%= incident.severity %></span></td>
+          <td><%= incident.assignee %></td>
+          <td><span class="status"><i class="status-dot status-<%= incident.status.toLowerCase().replace(' ', '-') %>"></i><%= incident.status %></span></td>
+          <td><time datetime="<%= incident.updated_at %>"><%= incident.updated_at.replace('T', ' ').slice(0, 16) %></time></td>
+        </tr><% }) %></tbody>
+      </table></div>
+    <% } else { %>
+      <div class="empty-state"><div class="empty-symbol" aria-hidden="true">+</div><h3>Tudo tranquilo por aqui.</h3><p>Quando algo precisar de atenção, registre o primeiro incidente para que a equipe possa acompanhar.</p><a class="button button-secondary" href="/incidents/new">Registrar primeiro incidente</a></div>
+    <% } %>
+  </section>
+</main>
+<%- include('partials/footer') %>

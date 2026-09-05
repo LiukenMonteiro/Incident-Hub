@@ -1,0 +1,12 @@
+services:
+  incident-hub:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_PATH: /app/data/incident-hub.db
+    volumes:
+      - incident-hub-data:/app/data
+
+volumes:
+  incident-hub-data:

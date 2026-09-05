@@ -1,0 +1,23 @@
+{
+  "name": "incident-hub",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Aplicação simples para registrar e acompanhar incidentes operacionais.",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "vitest run"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.8.1",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "supertest": "^7.1.0",
+    "vitest": "^3.0.7"
+  }
+}
