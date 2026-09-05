@@ -9,7 +9,7 @@ const {
   deleteIncident,
   findIncidentById,
   getIncidentComments,
-  getIncidentHistory,
+  getIncidentTimeline,
   incidentSummary,
   listIncidents,
   seedDemoData,
@@ -115,7 +115,7 @@ function createApp(db) {
     return response.render('incident-detail', {
       incident,
       comments: getIncidentComments(db, incident.id),
-      history: getIncidentHistory(db, incident.id),
+      timeline: getIncidentTimeline(db, incident.id),
       statuses: STATUSES,
       error: null,
       created: request.query.created === '1',
@@ -142,7 +142,7 @@ function createApp(db) {
       return response.status(422).render('incident-detail', {
         incident,
         comments: getIncidentComments(db, incident.id),
-        history: getIncidentHistory(db, incident.id),
+        timeline: getIncidentTimeline(db, incident.id),
         statuses: STATUSES,
         error: errors.join(' '),
         commentValues: values,
@@ -169,7 +169,7 @@ function createApp(db) {
       return response.status(error.statusCode || 400).render('incident-detail', {
         incident,
         comments: getIncidentComments(db, incident.id),
-        history: getIncidentHistory(db, incident.id),
+        timeline: getIncidentTimeline(db, incident.id),
         statuses: STATUSES,
         error: error.message,
         created: false,

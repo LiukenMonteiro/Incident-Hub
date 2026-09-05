@@ -1,6 +1,6 @@
 const request = require('supertest');
 const { createApp } = require('../src/app');
-const { createDatabase, findIncidentById, getIncidentHistory, seedDemoData, seedInitialData } = require('../src/db');
+const { createDatabase, findIncidentById, getIncidentHistory, getIncidentTimeline, seedDemoData, seedInitialData } = require('../src/db');
 const { formatDateTime } = require('../src/formatters');
 
 function testApplication() {
@@ -258,6 +258,28 @@ describe('Incident Hub', () => {
       expect(response.text).toContain('Informe o autor do comentário.');
       expect(response.text).toContain('Escreva o conteúdo do comentário.');
       expect(db.prepare('SELECT COUNT(*) AS count FROM incident_comments').get().count).toBe(0);
+    });
+
+    it('inclui comentários e mudanças de status na linha do tempo', async () => {
+      const { app, db } = testApplication();
+      db.prepare(`
+        INSERT INTO incidents (identifier, title, description, severity, assignee, status)
+        VALUES ('INC-0001', 'Falha de integração', 'Investigando a causa.', 'High', 'Ana', 'Open')
+      `).run();
+      db.prepare(`UPDATE incidents SET created_at = '2026-09-05 10:00:00', updated_at = '2026-09-05 10:00:00' WHERE id = 1`).run();
+
+      await request(app).post('/incidents/1/comments').type('form').send({ author: 'Ana', content: 'Provider contacted.' });
+      db.prepare(`UPDATE incident_comments SET created_at = '2026-09-05 10:42:00' WHERE incident_id = 1`).run();
+      await request(app).post('/incidents/1/status').type('form').send({ status: 'In Progress' });
+      db.prepare(`UPDATE incident_history SET changed_at = '2026-09-05 10:31:00' WHERE incident_id = 1`).run();
+
+      const timeline = getIncidentTimeline(db, 1);
+      expect(timeline.map((item) => item.event_type)).toEqual(['status', 'comment']);
+      expect(timeline[0].to_status).toBe('In Progress');
+      expect(timeline[1].content).toBe('Provider contacted.');
+      const response = await request(app).get('/incidents/1');
+      expect(response.text).toContain('Provider contacted.');
+      expect(response.text).toContain('Histórico de atividade');
     });
   });
 

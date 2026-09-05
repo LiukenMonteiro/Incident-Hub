@@ -134,6 +134,19 @@ function getIncidentComments(db, incidentId) {
   `).all(incidentId);
 }
 
+function getIncidentTimeline(db, incidentId) {
+  return db.prepare(`
+    SELECT id, 'status' AS event_type, from_status, to_status, NULL AS author, NULL AS content, changed_at AS event_at
+    FROM incident_history
+    WHERE incident_id = ?
+    UNION ALL
+    SELECT id, 'comment' AS event_type, NULL AS from_status, NULL AS to_status, author, content, created_at AS event_at
+    FROM incident_comments
+    WHERE incident_id = ?
+    ORDER BY 7 ASC, 1 ASC
+  `).all(incidentId, incidentId);
+}
+
 function findIncidentById(db, id) {
   return db.prepare('SELECT * FROM incidents WHERE id = ?').get(id);
 }
@@ -243,6 +256,7 @@ module.exports = {
   findIncidentById,
   getIncidentComments,
   getIncidentHistory,
+  getIncidentTimeline,
   incidentSummary,
   listIncidents,
   seedInitialData,

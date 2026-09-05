@@ -60,4 +60,4 @@ Minha abordagem foi boa para a criação da aplicação, primeiro eu planejei e 
 No restante foram apenas tomadas de decisão de código e ela trabalhou dentro desse escopo geral.
 
 ### 15. Quais ferramentas de IA foram utilizadas?
-foram utilizadas Codex, antigravity e chat com modelos diversos (extensão do vscode), também tive à minha disposição o OPenCode, porém não cheguei a usar. Todas elas em versão grátis.
+foram utilizadas Codex, antigravity e chat com modelos diversos (extensão do vscode), também tive à minha disposição o OPenCode. Todas elas em versão grátis.

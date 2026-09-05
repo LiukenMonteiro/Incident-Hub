@@ -1,5 +1,6 @@
 <%- include('partials/header') %>
 <% const incidentComments = typeof comments !== 'undefined' && comments ? comments : []; %>
+<% const incidentTimeline = typeof timeline !== 'undefined' && timeline ? timeline : []; %>
 <main id="conteudo" class="page-shell detail-page">
   <div class="detail-actions"><a class="back-link" href="/">← Voltar ao painel</a><div class="detail-action-group"><a class="button button-secondary" href="/incidents/<%= incident.id %>/edit">Editar incidente</a><form method="post" action="/incidents/<%= incident.id %>/delete" onsubmit="return confirm('Excluir este incidente? Esta ação não pode ser desfeita.');"><button class="button button-danger" type="submit">Excluir incidente</button></form></div></div>
   <% if (created) { %><div class="success-message" role="status">Incidente <strong><%= incident.identifier %></strong> criado com status Open.</div><% } %>
@@ -12,6 +13,16 @@
     <article>
       <h2>Descrição</h2>
       <p class="description"><%= incident.description %></p>
+      <section class="comments-section reveal" aria-labelledby="comments-heading">
+        <div class="section-heading"><div><p class="eyebrow">Registro de atividade</p><h2 id="comments-heading">Comentários <span><%= incidentComments.length %></span></h2></div></div>
+        <form class="comment-form" method="post" action="/incidents/<%= incident.id %>/comments">
+          <div class="comment-form-grid"><div class="field"><label for="comment-author">Autor <span aria-hidden="true">*</span></label><input id="comment-author" name="author" value="<%= typeof commentValues !== 'undefined' && commentValues.author ? commentValues.author : '' %>" maxlength="80" required></div><div class="field"><label for="comment-content">Comentário <span aria-hidden="true">*</span></label><textarea id="comment-content" name="content" rows="3" maxlength="1000" required><%= typeof commentValues !== 'undefined' && commentValues.content ? commentValues.content : '' %></textarea></div></div>
+          <button class="button button-primary" type="submit">Adicionar comentário</button>
+        </form>
+        <% if (incidentComments.length) { %>
+          <ol class="comments-list"><% incidentComments.forEach((comment) => { %><li class="comment-item"><div class="comment-meta"><strong><%= comment.author %></strong><time datetime="<%= comment.created_at %>"><%= formatDateTime(comment.created_at) %></time></div><p><%= comment.content %></p></li><% }) %></ol>
+        <% } else { %><p class="empty-comments">Nenhum comentário registrado até o momento.</p><% } %>
+      </section>
     </article>
     <aside>
       <dl>
@@ -26,28 +37,14 @@
       </form>
     </aside>
   </section>
-  <section class="comments-section reveal" aria-labelledby="comments-heading">
-    <div class="section-heading"><div><p class="eyebrow">Registro de atividade</p><h2 id="comments-heading">Comentários <span><%= incidentComments.length %></span></h2></div></div>
-    <form class="comment-form" method="post" action="/incidents/<%= incident.id %>/comments">
-      <div class="comment-form-grid"><div class="field"><label for="comment-author">Autor <span aria-hidden="true">*</span></label><input id="comment-author" name="author" value="<%= typeof commentValues !== 'undefined' && commentValues.author ? commentValues.author : '' %>" maxlength="80" required></div><div class="field"><label for="comment-content">Comentário <span aria-hidden="true">*</span></label><textarea id="comment-content" name="content" rows="3" maxlength="1000" required><%= typeof commentValues !== 'undefined' && commentValues.content ? commentValues.content : '' %></textarea></div></div>
-      <button class="button button-primary" type="submit">Adicionar comentário</button>
-    </form>
-    <% if (incidentComments.length) { %>
-      <ol class="comments-list"><% incidentComments.forEach((comment) => { %><li class="comment-item"><div class="comment-meta"><strong><%= comment.author %></strong><time datetime="<%= comment.created_at %>"><%= formatDateTime(comment.created_at) %></time></div><p><%= comment.content %></p></li><% }) %></ol>
-    <% } else { %><p class="empty-comments">Nenhum comentário registrado até o momento.</p><% } %>
-  </section>
   <section class="history-section reveal" aria-labelledby="history-heading">
-    <h2 id="history-heading">Histórico de alterações</h2>
-    <% if (typeof history !== 'undefined' && history && history.length) { %>
+    <h2 id="history-heading">Histórico de atividade</h2>
+    <% if (incidentTimeline.length) { %>
       <ul class="history-timeline">
-        <% history.forEach((item) => { %>
+        <% incidentTimeline.forEach((item) => { %>
           <li class="history-item">
-            <time datetime="<%= item.changed_at %>"><%= formatDateTime(item.changed_at) %></time>
-            <span class="history-change">
-              <span class="status"><i class="status-dot status-<%= item.from_status.toLowerCase().replace(' ', '-') %>"></i><%= item.from_status %></span>
-              <span class="history-arrow" aria-hidden="true">→</span>
-              <span class="status"><i class="status-dot status-<%= item.to_status.toLowerCase().replace(' ', '-') %>"></i><%= item.to_status %></span>
-            </span>
+            <time datetime="<%= item.event_at %>"><%= formatDateTime(item.event_at) %></time>
+            <% if (item.event_type === 'status') { %><span class="history-change"><span class="status"><i class="status-dot status-<%= item.from_status.toLowerCase().replace(' ', '-') %>"></i><%= item.from_status %></span><span class="history-arrow" aria-hidden="true">→</span><span class="status"><i class="status-dot status-<%= item.to_status.toLowerCase().replace(' ', '-') %>"></i><%= item.to_status %></span></span><% } else { %><span class="history-comment"><strong><%= item.author %> comentou:</strong> “<%= item.content %>”</span><% } %>
           </li>
         <% }) %>
       </ul>
