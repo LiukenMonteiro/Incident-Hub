@@ -1,6 +1,7 @@
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const Database = require('better-sqlite3');
 const request = require('supertest');
 const { createApp } = require('../src/app');
 const {
@@ -526,6 +527,154 @@ describe('Incident Hub', () => {
       expect(timeline.map((item) => item.event_type)).toEqual(['comment', 'status']);
       expect(db.prepare('SELECT COUNT(*) AS count FROM incident_history').get().count).toBe(1);
       expect(db.prepare('SELECT COUNT(*) AS count FROM incident_comments').get().count).toBe(1);
+      db.close();
+
+      fs.rmSync(tempDirectory, { recursive: true, force: true });
+    });
+  });
+
+  describe('Consistência de Estado ao Atualizar o Sistema', () => {
+    function fileBasedDatabase() {
+      const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'incident-hub-'));
+      const databasePath = path.join(tempDirectory, 'incident-hub.db');
+      return { tempDirectory, databasePath };
+    }
+
+    it('preserva incidentes existentes ao atualizar o esquema para incluir comentários e histórico', () => {
+      const { tempDirectory, databasePath } = fileBasedDatabase();
+
+      let db = new Database(databasePath);
+      db.exec(`
+        CREATE TABLE incidents (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          identifier TEXT UNIQUE,
+          title TEXT NOT NULL,
+          description TEXT NOT NULL,
+          severity TEXT NOT NULL,
+          assignee TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'Open',
+          created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+      db.prepare(`
+        INSERT INTO incidents (identifier, title, description, severity, assignee, status)
+        VALUES ('INC-0001', 'Incidente legado', 'Registro anterior à versão atual.', 'High', 'Ana', 'Open')
+      `).run();
+      db.close();
+
+      db = createDatabase(databasePath);
+      const legacy = findIncidentById(db, 1);
+      expect(legacy.title).toBe('Incidente legado');
+
+      createIncidentComment(db, legacy.id, { author: 'Ana', content: 'Comentário após atualização.' });
+      updateIncidentStatus(db, legacy.id, 'In Progress');
+
+      expect(getIncidentTimeline(db, legacy.id).length).toBe(2);
+      expect(db.prepare('SELECT COUNT(*) AS count FROM incident_comments').get().count).toBe(1);
+      expect(db.prepare('SELECT COUNT(*) AS count FROM incident_history').get().count).toBe(1);
+      db.close();
+
+      fs.rmSync(tempDirectory, { recursive: true, force: true });
+    });
+
+    it('preserva incidentes, comentários e histórico íntegros ao reabrir a base', () => {
+      const { tempDirectory, databasePath } = fileBasedDatabase();
+
+      let db = createDatabase(databasePath);
+      const incident = createIncident(db, {
+        title: 'Falha persistente',
+        description: 'Registro com atividades para validar atualização do sistema.',
+        severity: 'High',
+        assignee: 'Ana'
+      });
+      createIncidentComment(db, incident.id, { author: 'Ana', content: 'Primeiro comentário.' });
+      db.prepare(`UPDATE incident_comments SET created_at = '2026-09-05 10:00:00' WHERE incident_id = ?`).run(incident.id);
+      createIncidentComment(db, incident.id, { author: 'Bruno', content: 'Segundo comentário.' });
+      db.prepare(`UPDATE incident_comments SET created_at = '2026-09-05 10:10:00' WHERE id = (SELECT MAX(id) FROM incident_comments WHERE incident_id = ?)`).run(incident.id);
+      updateIncidentStatus(db, incident.id, 'In Progress');
+      db.prepare(`UPDATE incident_history SET changed_at = '2026-09-05 10:20:00' WHERE incident_id = ?`).run(incident.id);
+      updateIncidentStatus(db, incident.id, 'Resolved');
+      db.prepare(`UPDATE incident_history SET changed_at = '2026-09-05 10:30:00' WHERE to_status = 'Resolved' AND incident_id = ?`).run(incident.id);
+      db.close();
+
+      let reopened = createDatabase(databasePath);
+      const stored = findIncidentById(reopened, incident.id);
+      expect(stored).toMatchObject({
+        identifier: incident.identifier,
+        title: 'Falha persistente',
+        description: 'Registro com atividades para validar atualização do sistema.',
+        severity: 'High',
+        assignee: 'Ana',
+        status: 'Resolved'
+      });
+
+      expect(reopened.prepare('SELECT author, content FROM incident_comments WHERE incident_id = ? ORDER BY id ASC').all(incident.id)).toEqual([
+        { author: 'Ana', content: 'Primeiro comentário.' },
+        { author: 'Bruno', content: 'Segundo comentário.' }
+      ]);
+
+      expect(getIncidentHistory(reopened, incident.id).map((item) => [item.from_status, item.to_status])).toEqual([
+        ['Open', 'In Progress'],
+        ['In Progress', 'Resolved']
+      ]);
+
+      expect(getIncidentTimeline(reopened, incident.id).map((item) => item.event_type)).toEqual(['comment', 'comment', 'status', 'status']);
+
+      reopened.close();
+
+      const reopenedAgain = createDatabase(databasePath);
+      expect(findIncidentById(reopenedAgain, incident.id).status).toBe('Resolved');
+      expect(reopenedAgain.prepare('SELECT COUNT(*) AS count FROM incident_comments').get().count).toBe(2);
+      expect(reopenedAgain.prepare('SELECT COUNT(*) AS count FROM incident_history').get().count).toBe(2);
+      reopenedAgain.close();
+
+      fs.rmSync(tempDirectory, { recursive: true, force: true });
+    });
+
+    it('mantém o status do incidente consistente com a última transição registrada', () => {
+      const { tempDirectory, databasePath } = fileBasedDatabase();
+
+      let db = createDatabase(databasePath);
+      const incident = createIncident(db, {
+        title: 'Lentidão operacional',
+        description: 'Caso para validar consistência entre incidente e histórico.',
+        severity: 'Medium',
+        assignee: 'Bruno'
+      });
+      updateIncidentStatus(db, incident.id, 'In Progress');
+      updateIncidentStatus(db, incident.id, 'Resolved');
+      db.close();
+
+      db = createDatabase(databasePath);
+      const history = getIncidentHistory(db, incident.id);
+      const last = history[history.length - 1];
+      expect(findIncidentById(db, incident.id).status).toBe(last.to_status);
+      expect(last.to_status).toBe('Resolved');
+      expect(getIncidentTimeline(db, incident.id).at(-1).to_status).toBe('Resolved');
+      db.close();
+
+      fs.rmSync(tempDirectory, { recursive: true, force: true });
+    });
+
+    it('não perde comentários e histórico existentes ao validar dados iniciais após reabrir', () => {
+      const { tempDirectory, databasePath } = fileBasedDatabase();
+
+      let db = createDatabase(databasePath);
+      seedInitialData(db);
+      const incident = findIncidentById(db, 1);
+      createIncidentComment(db, incident.id, { author: 'Ana', content: 'Contexto preservado.' });
+      db.prepare(`UPDATE incident_comments SET created_at = '2026-09-05 10:00:00' WHERE incident_id = ?`).run(incident.id);
+      updateIncidentStatus(db, incident.id, 'In Progress');
+      db.prepare(`UPDATE incident_history SET changed_at = '2026-09-05 10:05:00' WHERE incident_id = ?`).run(incident.id);
+      db.close();
+
+      db = createDatabase(databasePath);
+      expect(seedInitialData(db)).toBe(false);
+      expect(db.prepare('SELECT COUNT(*) AS count FROM incidents').get().count).toBe(3);
+      expect(db.prepare('SELECT COUNT(*) AS count FROM incident_comments').get().count).toBe(1);
+      expect(db.prepare('SELECT COUNT(*) AS count FROM incident_history').get().count).toBe(1);
+      expect(getIncidentTimeline(db, incident.id).map((item) => item.event_type)).toEqual(['comment', 'status']);
       db.close();
 
       fs.rmSync(tempDirectory, { recursive: true, force: true });
