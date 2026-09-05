@@ -13,7 +13,8 @@ Construir uma aplicação web para registrar, acompanhar e comunicar incidentes 
 
 ## Fase 2 — Fundação técnica
 
-- Escolher a stack de frontend, backend, banco de dados e autenticação.
+- Escolher a stack de frontend, backend e autenticação; Docker e SQLite já estão definidos como base técnica.
+- Criar uma imagem Docker oficial, estável e enxuta, com armazenamento persistente para o banco SQLite.
 - Criar a estrutura do projeto, padrões de código e variáveis de ambiente documentadas.
 - Configurar validação, lint, testes e integração contínua.
 - Modelar as entidades essenciais, começando por incidentes, atualizações e usuários.

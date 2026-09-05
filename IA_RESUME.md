@@ -10,7 +10,7 @@ Este arquivo permite que outra IA ou pessoa retome o trabalho sem precisar infer
 - **Etapa:** documentação e planejamento inicial
 - **Branch principal:** `main`
 - **Aplicação implementada:** não
-- **Stack definida:** não
+- **Stack definida:** parcialmente — Docker e SQLite
 
 ## O que já existe
 
@@ -22,6 +22,8 @@ Este arquivo permite que outra IA ou pessoa retome o trabalho sem precisar infer
 
 - O produto será um hub web para gestão de incidentes.
 - A primeira implementação deve começar por descoberta e definição de MVP antes de escolher tecnologias.
+- O projeto usará Docker para execução em diferentes sistemas operacionais e SQLite para persistência leve.
+- As imagens Docker devem ser oficiais, estáveis e enxutas; o volume do SQLite deve ser persistente.
 - Commits devem ser descritivos.
 - Informações sensíveis e dados reais de incidentes não devem ser versionados.
 
@@ -33,5 +35,6 @@ Conduzir a descoberta do MVP: definir usuários, permissões, fluxo de estados d
 
 1. Leia `START.md`, `PLAN.md` e este arquivo antes de editar.
 2. Preserve decisões existentes; se precisar alterá-las, explique o motivo neste documento.
-3. Após cada marco relevante, atualize o checkpoint com data, estado, arquivos modificados e próximo passo.
-4. Antes de encerrar, valide as alterações e use um commit descritivo.
+3. Para cada alteração relevante, antes de criar uma entrada em `AI_LOG.md`, pergunte ao usuário pelos campos: Objetivo, Contexto, Instrução, Resultado, Validação e Decisão.
+4. Após cada marco relevante, atualize o checkpoint com data, estado, arquivos modificados e próximo passo.
+5. Antes de encerrar, valide as alterações e use um commit descritivo.
