@@ -52,6 +52,14 @@ DISPLAY_TIME_ZONE=America/Sao_Paulo
 
 5. Gere um domínio público pelo serviço e abra a URL fornecida pelo Railway.
 
+### Ambiente publicado
+
+A aplicação está disponível em:
+
+https://incident-hub-production.up.railway.app/
+
+O endereço foi validado com resposta HTTP 200. O banco SQLite está associado a um volume persistente do Railway montado em `/app/data`.
+
 Não use o disco local da Vercel para este SQLite: funções da Vercel são efêmeras e podem perder os dados. Para usar Vercel no futuro, seria necessário migrar a persistência para um banco externo, como PostgreSQL, e adaptar a aplicação.
 
 ## 🚀 Como Executar com Docker (Recomendado)
