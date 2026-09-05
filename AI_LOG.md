@@ -239,28 +239,28 @@ A suíte de testes automatizados com Vitest foi ampliada e validada com 6 testes
 
 Adotar filtragem assíncrona com substituição de fragmentos de DOM e fallback progressivo (caso o JavaScript esteja desabilitado, o formulário tradicional continua funcional).
 
-### 2026-09-05 — Desenvolvimento orientado a testes (TDD) para regras de negócio, histórico e métricas
+### 2026-09-05 — Adoção de Desenvolvimento Orientado a Testes (TDD)
 
 #### Objetivo
 
-Garantir robustez, consistência e evitar quebras de escopo por meio de desenvolvimento orientado a testes funcionais e reais cobrindo o ciclo de vida completo dos incidentes.
+Adotar uma abordagem de desenvolvimento mais madura e vantajosa para a continuidade da aplicação, prevenindo regressões, reduzindo erros e evitando quebras de escopo no futuro.
 
 #### Contexto
 
-A especificação técnica exige regras de negócio críticas (como o bloqueio de resolução direta para incidentes de severidade Critical), rastreabilidade de alterações via histórico persistido, métricas essenciais no dashboard e dados iniciais (seed) para avaliação imediata.
+Com a definição completa dos requisitos técnicos e das regras de negócio do Incident Hub (como transição restrita de status em incidentes críticos, histórico persistido e métricas operacionais), o avanço do projeto exigia uma estratégia preventiva para garantir a estabilidade dos fluxos essenciais.
 
 #### Instrução
 
-Estruturar no arquivo `tests/app.test.js` uma suíte completa de testes funcionais que exercitem os endpoints HTTP, regras de validação, integridade do banco SQLite e formatação temporal. Em seguida, implementar a tabela de histórico (`incident_history`), as rotas de transição de status (`POST /incidents/:id/status`), a carga de dados iniciais (`seedInitialData`) e a visão resumida do dashboard.
+Trabalhar orientado a testes (TDD), estabelecendo que qualquer avanço deve ser guiado por testes reais e funcionais no arquivo `tests/app.test.js`, sem criar testes artificiais ou que não façam sentido no funcionamento real da aplicação, registrando a criação dos testes por meio de commits descritivos.
 
 #### Resultado
 
-A aplicação passou a registrar e persistir o histórico de cada transição de status em ordem cronológica, bloquear transições diretas de `Open` para `Resolved` em incidentes Critical com feedback amigável (status 422), exibir contadores exatos de incidentes abertos, críticos pendentes e resolvidos, e popular automaticamente os 3 incidentes de exemplo caso o banco de dados esteja vazio.
+A metodologia TDD foi formalizada no repositório. Foi estruturada uma suíte de testes funcionais cobrindo o ciclo de vida completo: criação de incidentes com campos obrigatórios e identificador `INC-xxxx`, listagem e filtros, detalhes, transição de status com bloqueio de `Open → Resolved` para incidentes Critical (feedback 422), histórico de alterações persistido, métricas do dashboard e carga de dados iniciais (`seed`).
 
 #### Validação
 
-A suíte completa de testes no Vitest foi executada e aprovada com 14 testes passando (`14 passed`). O contêiner Docker foi reconstruído com `docker compose up -d --build` e verificado em execução.
+A suíte executou com 100% de aprovação via Vitest (14 testes passando). A aplicação foi reconstruída e validada no contêiner Docker com `docker compose up -d --build`.
 
 #### Decisão
 
-Manter a cobertura de testes funcionais automatizados como requisito de validação para qualquer nova alteração ou expansão de funcionalidade no Incident Hub.
+O Desenvolvimento Orientado a Testes (TDD) passa a ser a metodologia padrão do projeto: qualquer nova funcionalidade, alteração de regra de negócio ou correção deverá ser orientada e protegida por testes funcionais reais prévios.

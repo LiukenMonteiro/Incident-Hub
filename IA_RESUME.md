@@ -33,6 +33,7 @@ Este arquivo permite que outra IA ou pessoa retome o trabalho sem precisar infer
  - Cada alteração de status gera um registro persistido no histórico (`incident_history`) contendo status anterior, novo status e data/hora, exibido em ordem cronológica na página de detalhes.
  - O dashboard apresenta as três métricas operacionais obrigatórias: incidentes em aberto, críticos pendentes e resolvidos.
  - Caso a base de dados esteja vazia, a aplicação carrega automaticamente os 3 incidentes iniciais de exemplo (Payment API instability, Reconciliation delay, Incorrect customer notification).
+ - O projeto adota oficialmente a metodologia de Desenvolvimento Orientado a Testes (TDD): novos requisitos, regras de negócio ou correções devem ser previamente estruturados com testes funcionais reais no Vitest.
  - A implementação seguirá marcos pequenos e verificáveis, com documentação atualizada quando relevante.
  - Commits devem ser descritivos.
  - Informações sensíveis e dados reais de incidentes não devem ser versionados.
