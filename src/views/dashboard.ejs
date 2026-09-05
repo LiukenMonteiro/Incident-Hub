@@ -23,6 +23,13 @@
       <div><p class="eyebrow">Visão geral</p><h2 id="incidentes-title">Incidentes recentes <span><%= summary.total %></span></h2></div>
       <a class="text-link" href="/incidents/new">Adicionar novo <span aria-hidden="true">→</span></a>
     </div>
+    <form class="filters" method="get" aria-label="Filtrar incidentes">
+      <div class="filter-field"><label for="status-filter">Status</label><select id="status-filter" name="status"><option value="">Todos os status</option><% statuses.forEach((status) => { %><option value="<%= status %>" <%= filters.status === status ? 'selected' : '' %>><%= status %></option><% }) %></select></div>
+      <div class="filter-field"><label for="severity-filter">Severidade</label><select id="severity-filter" name="severity"><option value="">Todas as severidades</option><% severities.forEach((severity) => { %><option value="<%= severity %>" <%= filters.severity === severity ? 'selected' : '' %>><%= severity %></option><% }) %></select></div>
+      <button class="button button-filter" type="submit">Aplicar filtros</button>
+      <span id="clear-filters-wrapper"><% if (filters.status || filters.severity) { %><a class="clear-filters" href="/">Limpar filtros</a><% } %></span>
+    </form>
+    <div id="incidents-results" aria-live="polite">
     <% if (incidents.length) { %>
       <div class="incident-table-wrap"><table>
         <thead><tr><th>Incidente</th><th>Severidade</th><th>Responsável</th><th>Status</th><th>Atualizado</th></tr></thead>
@@ -35,8 +42,13 @@
         </tr><% }) %></tbody>
       </table></div>
     <% } else { %>
-      <div class="empty-state"><div class="empty-symbol" aria-hidden="true">+</div><h3>Tudo tranquilo por aqui.</h3><p>Quando algo precisar de atenção, registre o primeiro incidente para que a equipe possa acompanhar.</p><a class="button button-secondary" href="/incidents/new">Registrar primeiro incidente</a></div>
+      <% if (filters.status || filters.severity) { %>
+        <div class="empty-state"><div class="empty-symbol" aria-hidden="true">⌕</div><h3>Nenhum incidente encontrado.</h3><p>Não há registros com os filtros selecionados. Ajuste os critérios ou limpe a busca.</p><a class="button button-secondary clear-filters-btn" href="/">Limpar filtros</a></div>
+      <% } else { %>
+        <div class="empty-state"><div class="empty-symbol" aria-hidden="true">+</div><h3>Tudo tranquilo por aqui.</h3><p>Quando algo precisar de atenção, registre o primeiro incidente para que a equipe possa acompanhar.</p><a class="button button-secondary" href="/incidents/new">Registrar primeiro incidente</a></div>
+      <% } %>
     <% } %>
+    </div>
   </section>
 </main>
 <%- include('partials/footer') %>

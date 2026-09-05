@@ -3,6 +3,7 @@ const path = require('node:path');
 const { formatDateTime } = require('./formatters');
 const {
   SEVERITIES,
+  STATUSES,
   createIncident,
   findIncidentById,
   incidentSummary,
@@ -20,10 +21,18 @@ function createApp(db) {
     next();
   });
 
-  app.get('/', (_request, response) => {
+  app.get('/', (request, response) => {
+    const filters = {
+      status: STATUSES.includes(request.query.status) ? request.query.status : '',
+      severity: SEVERITIES.includes(request.query.severity) ? request.query.severity : ''
+    };
+
     response.render('dashboard', {
-      incidents: listIncidents(db),
-      summary: incidentSummary(db)
+      incidents: listIncidents(db, filters),
+      summary: incidentSummary(db),
+      filters,
+      severities: SEVERITIES,
+      statuses: STATUSES
     });
   });
 

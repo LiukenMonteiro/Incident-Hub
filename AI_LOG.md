@@ -212,3 +212,29 @@ Um teste automatizado confirma que `2026-09-05 12:42:00` em UTC é exibido como 
 #### Decisão
 
 Manter UTC como referência de persistência e usar `America/Sao_Paulo` como fuso de apresentação configurável. Qualquer mudança futura que afete horários de incidentes deve incluir teste de fuso horário.
+
+### 2026-09-05 — Filtros dinâmicos e preservação de rolagem
+
+#### Objetivo
+
+Permitir filtrar incidentes por status e severidade com agilidade e fluidez, sem recarregamento da página e sem que a tela role de volta ao topo.
+
+#### Contexto
+
+O usuário relatou que ao aplicar filtros a página recarregava por completo e retornava ao topo da tela, além de exigir o clique manual em um botão de aplicação, prejudicando a velocidade e o dinamismo da operação.
+
+#### Instrução
+
+Implementar filtragem dinâmica acionada no evento de mudança dos campos de seleção (`change`), atualizando apenas a área de resultados de incidentes e o botão de limpeza via requisições assíncronas, ocultando o botão de envio quando o JavaScript estiver ativo e preservando o estado do histórico do navegador.
+
+#### Resultado
+
+Foi criado o script `filters.js` e ajustados os estilos em `filters.css` e templates. Ao alterar qualquer seleção, a lista de incidentes é atualizada de forma imediata e sem reload de página, com tratamento de cancelamento com `AbortController`, indicação sutil de carregamento e compatibilidade com botões de voltar/avançar via `history.pushState`. O contêiner Docker foi reconstruído para refletir as alterações no ambiente local.
+
+#### Validação
+
+A suíte de testes automatizados com Vitest foi ampliada e validada com 6 testes passando com sucesso. A reconstrução e execução no Docker foram validadas no contêiner com `docker compose up -d --build`.
+
+#### Decisão
+
+Adotar filtragem assíncrona com substituição de fragmentos de DOM e fallback progressivo (caso o JavaScript esteja desabilitado, o formulário tradicional continua funcional).

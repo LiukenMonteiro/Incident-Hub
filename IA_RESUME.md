@@ -5,32 +5,33 @@
 Este arquivo permite que outra IA ou pessoa retome o trabalho sem precisar inferir o contexto do repositório.
 
 ## Checkpoint atual
-
+ 
 - **Data:** 2026-09-05
-- **Etapa:** fundação técnica e primeiro fluxo implementados
+- **Etapa:** dashboard, criação e filtros dinâmicos de incidentes implementados
 - **Branch principal:** `main`
-- **Aplicação implementada:** sim — dashboard e criação de incidentes
+- **Aplicação implementada:** sim — dashboard, criação de incidentes e filtros dinâmicos
 - **Stack definida:** JavaScript, Node.js, Express, SQLite, Docker e Vitest
-
-## O que já existe
-
-- `README.md`: identificação do repositório.
-- `START.md`: ponto de entrada e convenções iniciais.
-- `PLAN.md`: primeira versão do plano de desenvolvimento.
-
-## Decisões tomadas
-
-- O produto será um hub web para gestão de incidentes.
-- A primeira implementação deve começar por descoberta e definição de MVP antes de escolher tecnologias.
-- O projeto usará Docker para execução em diferentes sistemas operacionais e SQLite para persistência leve.
-- As imagens Docker devem ser oficiais, estáveis e enxutas; o volume do SQLite deve ser persistente.
-- A aplicação usará Node.js com Express e templates renderizados no servidor; SQLite persistirá os dados e Vitest cobrirá os testes.
-- A primeira versão atenderá uma pequena equipe em um único ambiente compartilhado, sem autenticação, permissões ou múltiplos tenants.
-- O dashboard possui tema claro e um tema escuro persistente, salvo no `localStorage` do navegador para conforto em turnos noturnos.
-- Datas e horas são persistidas em UTC e exibidas no fuso operacional `America/Sao_Paulo`; precisão de horário é requisito crítico.
-- A implementação seguirá marcos pequenos e verificáveis, com documentação atualizada quando relevante.
-- Commits devem ser descritivos.
-- Informações sensíveis e dados reais de incidentes não devem ser versionados.
+ 
+ ## O que já existe
+ 
+ - `README.md`: identificação do repositório.
+ - `START.md`: ponto de entrada e convenções iniciais.
+ - `PLAN.md`: primeira versão do plano de desenvolvimento.
+ 
+ ## Decisões tomadas
+ 
+ - O produto será um hub web para gestão de incidentes.
+ - A primeira implementação deve começar por descoberta e definição de MVP antes de escolher tecnologias.
+ - O projeto usará Docker para execução em diferentes sistemas operacionais e SQLite para persistência leve.
+ - As imagens Docker devem ser oficiais, estáveis e enxutas; o volume do SQLite deve ser persistente.
+ - A aplicação usará Node.js com Express e templates renderizados no servidor; SQLite persistirá os dados e Vitest cobrirá os testes.
+ - A primeira versão atenderá uma pequena equipe em um único ambiente compartilhado, sem autenticação, permissões ou múltiplos tenants.
+ - O dashboard possui tema claro e um tema escuro persistente, salvo no `localStorage` do navegador para conforto em turnos noturnos.
+ - Datas e horas são persistidas em UTC e exibidas no fuso operacional `America/Sao_Paulo`; precisão de horário é requisito crítico.
+ - A filtragem de incidentes por status e severidade é dinâmica no cliente, sem recarregar a página nem reiniciar a posição de rolagem, com histórico e fallback para formulário tradicional.
+ - A implementação seguirá marcos pequenos e verificáveis, com documentação atualizada quando relevante.
+ - Commits devem ser descritivos.
+ - Informações sensíveis e dados reais de incidentes não devem ser versionados.
 
 ## Próxima ação recomendada
 

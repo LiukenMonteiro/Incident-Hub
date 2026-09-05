@@ -37,11 +37,41 @@ describe('Incident Hub', () => {
     expect(incident.severity).toBe('High');
   });
 
+  it('filtra incidentes por status e severidade', async () => {
+    const { app, db } = testApplication();
+    const critical = db.prepare(`
+      INSERT INTO incidents (identifier, title, description, severity, assignee, status)
+      VALUES ('INC-0001', 'Servidor indisponível', 'Sem conexão.', 'Critical', 'Enfermagem', 'Resolved')
+    `).run();
+    db.prepare(`
+      INSERT INTO incidents (identifier, title, description, severity, assignee, status)
+      VALUES ('INC-0002', 'Alerta secundário', 'Monitoramento.', 'Low', 'Operações', 'Open')
+    `).run();
+
+    expect(critical.changes).toBe(1);
+    const response = await request(app).get('/?status=Resolved&severity=Critical');
+
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('Servidor indisponível');
+    expect(response.text).not.toContain('Alerta secundário');
+  });
+
   it('rejeita criação sem os campos obrigatórios', async () => {
     const { app } = testApplication();
     const response = await request(app).post('/incidents').type('form').send({ title: 'Sem dados' });
 
     expect(response.status).toBe(422);
     expect(response.text).toContain('Revise os campos');
+  });
+
+  it('serve o script de filtragem dinâmica e estrutura de resultados', async () => {
+    const { app } = testApplication();
+    const staticResponse = await request(app).get('/filters.js');
+    expect(staticResponse.status).toBe(200);
+    expect(staticResponse.headers['content-type']).toContain('javascript');
+
+    const dashboardResponse = await request(app).get('/');
+    expect(dashboardResponse.text).toContain('id="incidents-results"');
+    expect(dashboardResponse.text).toContain('src="/filters.js"');
   });
 });

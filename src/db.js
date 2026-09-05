@@ -45,8 +45,22 @@ function findIncidentById(db, id) {
   return db.prepare('SELECT * FROM incidents WHERE id = ?').get(id);
 }
 
-function listIncidents(db) {
-  return db.prepare('SELECT * FROM incidents ORDER BY datetime(updated_at) DESC, id DESC').all();
+function listIncidents(db, filters = {}) {
+  const conditions = [];
+  const parameters = [];
+
+  if (filters.status) {
+    conditions.push('status = ?');
+    parameters.push(filters.status);
+  }
+
+  if (filters.severity) {
+    conditions.push('severity = ?');
+    parameters.push(filters.severity);
+  }
+
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+  return db.prepare(`SELECT * FROM incidents ${where} ORDER BY datetime(updated_at) DESC, id DESC`).all(...parameters);
 }
 
 function incidentSummary(db) {
