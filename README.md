@@ -15,6 +15,7 @@ O **Incident Hub** foi desenvolvido para centralizar o fluxo operacional de inci
 - **Dashboard Operacional:** Resumo em tempo real com contadores de incidentes em aberto, em andamento e prioritários (severidade High ou Critical).
 - **Cadastro e Detalhamento:** Registro estruturado com geração automática de identificador único (`INC-0001`), severidade, responsável e descrição detalhada.
 - **Ciclo de vida do incidente:** Criação, edição de título e descrição, atualização de status, histórico de alterações e exclusão com confirmação.
+- **Comentários:** Registro de múltiplos comentários por incidente, com autor, conteúdo e data/hora de criação.
 - **Filtragem Dinâmica Instantânea:** Filtros por status e severidade atualizam somente a lista de incidentes recentes via AJAX, sem recarregar o dashboard nem saltar a rolagem; links reais permanecem como fallback.
 - **Precisão Temporal:** Horários registrados em UTC no banco de dados e apresentados no fuso operacional (`America/Sao_Paulo`).
 - **Tema Escuro Persistente:** Alternância entre tema claro e escuro salva no navegador (`localStorage`), pensada para conforto visual em plantões e turnos noturnos.
@@ -30,7 +31,7 @@ O **Incident Hub** foi desenvolvido para centralizar o fluxo operacional de inci
 2. Se quiser testar o sistema com dados prontos, clique em **Dados de teste**.
 3. Para registrar uma ocorrência real, clique em **Adicionar novo** ou **Registrar incidente**.
 4. Use os filtros de status e severidade para analisar o cenário operacional.
-5. Em cada incidente, você pode editar título e descrição, alterar o status, acompanhar o histórico ou excluir o registro com confirmação.
+5. Em cada incidente, você pode editar título e descrição, adicionar comentários, alterar o status, acompanhar o histórico ou excluir o registro com confirmação.
 
 > O botão **Dados de teste** foi pensado para avaliação do sistema sem exigir cadastro manual de vários registros. Ele repõe apenas os exemplos ausentes e preserva os incidentes já cadastrados.
 

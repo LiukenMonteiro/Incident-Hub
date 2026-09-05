@@ -213,6 +213,54 @@ describe('Incident Hub', () => {
     });
   });
 
+  describe('Comentários de Incidentes', () => {
+    it('cria e exibe múltiplos comentários com autor, conteúdo e data', async () => {
+      const { app, db } = testApplication();
+      db.prepare(`
+        INSERT INTO incidents (identifier, title, description, severity, assignee, status)
+        VALUES ('INC-0001', 'Falha de integração', 'Investigando a causa.', 'High', 'Ana', 'Open')
+      `).run();
+
+      const firstResponse = await request(app)
+        .post('/incidents/1/comments')
+        .type('form')
+        .send({ author: 'Ana', content: 'A falha começou após a última atualização.' });
+      const secondResponse = await request(app)
+        .post('/incidents/1/comments')
+        .type('form')
+        .send({ author: 'Bruno', content: 'A equipe de infraestrutura iniciou a análise.' });
+
+      expect(firstResponse.status).toBe(302);
+      expect(secondResponse.status).toBe(302);
+      expect(db.prepare('SELECT COUNT(*) AS count FROM incident_comments WHERE incident_id = 1').get().count).toBe(2);
+
+      const detailResponse = await request(app).get('/incidents/1');
+      expect(detailResponse.status).toBe(200);
+      expect(detailResponse.text).toContain('Ana');
+      expect(detailResponse.text).toContain('A falha começou após a última atualização.');
+      expect(detailResponse.text).toContain('Bruno');
+      expect(detailResponse.text).toContain('A equipe de infraestrutura iniciou a análise.');
+    });
+
+    it('rejeita comentário sem autor ou conteúdo', async () => {
+      const { app, db } = testApplication();
+      db.prepare(`
+        INSERT INTO incidents (identifier, title, description, severity, assignee, status)
+        VALUES ('INC-0001', 'Falha de integração', 'Investigando a causa.', 'High', 'Ana', 'Open')
+      `).run();
+
+      const response = await request(app)
+        .post('/incidents/1/comments')
+        .type('form')
+        .send({ author: ' ', content: ' ' });
+
+      expect(response.status).toBe(422);
+      expect(response.text).toContain('Informe o autor do comentário.');
+      expect(response.text).toContain('Escreva o conteúdo do comentário.');
+      expect(db.prepare('SELECT COUNT(*) AS count FROM incident_comments').get().count).toBe(0);
+    });
+  });
+
   describe('Histórico de Alterações de Status (Requisito 8)', () => {
     it('registra e persiste histórico de transições com status anterior, novo status e data/hora', async () => {
       const { app, db } = testApplication();

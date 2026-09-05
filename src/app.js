@@ -5,8 +5,10 @@ const {
   SEVERITIES,
   STATUSES,
   createIncident,
+  createIncidentComment,
   deleteIncident,
   findIncidentById,
+  getIncidentComments,
   getIncidentHistory,
   incidentSummary,
   listIncidents,
@@ -112,13 +114,47 @@ function createApp(db) {
 
     return response.render('incident-detail', {
       incident,
+      comments: getIncidentComments(db, incident.id),
       history: getIncidentHistory(db, incident.id),
       statuses: STATUSES,
       error: null,
       created: request.query.created === '1',
       edited: request.query.edited === '1',
-      updated: request.query.updated === '1'
+      updated: request.query.updated === '1',
+      commented: request.query.commented === '1'
     });
+  });
+
+  app.post('/incidents/:id/comments', (request, response) => {
+    const incident = findIncidentById(db, request.params.id);
+    if (!incident) return response.status(404).render('not-found');
+
+    const values = {
+      author: request.body.author?.trim(),
+      content: request.body.content?.trim()
+    };
+    const errors = [];
+
+    if (!values.author) errors.push('Informe o autor do comentário.');
+    if (!values.content) errors.push('Escreva o conteúdo do comentário.');
+
+    if (errors.length) {
+      return response.status(422).render('incident-detail', {
+        incident,
+        comments: getIncidentComments(db, incident.id),
+        history: getIncidentHistory(db, incident.id),
+        statuses: STATUSES,
+        error: errors.join(' '),
+        commentValues: values,
+        created: false,
+        edited: false,
+        updated: false,
+        commented: false
+      });
+    }
+
+    createIncidentComment(db, incident.id, values);
+    return response.redirect(`/incidents/${incident.id}?commented=1`);
   });
 
   app.post('/incidents/:id/status', (request, response) => {
@@ -132,6 +168,7 @@ function createApp(db) {
     } catch (error) {
       return response.status(error.statusCode || 400).render('incident-detail', {
         incident,
+        comments: getIncidentComments(db, incident.id),
         history: getIncidentHistory(db, incident.id),
         statuses: STATUSES,
         error: error.message,

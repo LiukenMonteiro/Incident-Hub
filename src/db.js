@@ -32,6 +32,14 @@ function createDatabase(databasePath) {
       to_status TEXT NOT NULL,
       changed_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE TABLE IF NOT EXISTS incident_comments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      incident_id INTEGER NOT NULL REFERENCES incidents(id) ON DELETE CASCADE,
+      author TEXT NOT NULL,
+      content TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
   `);
 
   return db;
@@ -106,6 +114,23 @@ function getIncidentHistory(db, incidentId) {
     SELECT * FROM incident_history
     WHERE incident_id = ?
     ORDER BY id ASC
+  `).all(incidentId);
+}
+
+function createIncidentComment(db, incidentId, comment) {
+  const result = db.prepare(`
+    INSERT INTO incident_comments (incident_id, author, content)
+    VALUES (?, ?, ?)
+  `).run(incidentId, comment.author, comment.content);
+
+  return db.prepare('SELECT * FROM incident_comments WHERE id = ?').get(result.lastInsertRowid);
+}
+
+function getIncidentComments(db, incidentId) {
+  return db.prepare(`
+    SELECT * FROM incident_comments
+    WHERE incident_id = ?
+    ORDER BY datetime(created_at) ASC, id ASC
   `).all(incidentId);
 }
 
@@ -213,8 +238,10 @@ module.exports = {
   STATUSES,
   createDatabase,
   createIncident,
+  createIncidentComment,
   deleteIncident,
   findIncidentById,
+  getIncidentComments,
   getIncidentHistory,
   incidentSummary,
   listIncidents,
