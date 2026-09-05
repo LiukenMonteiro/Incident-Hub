@@ -186,3 +186,29 @@ O contêiner foi reconstruído, e o dashboard, o JavaScript do tema e os estilos
 #### Decisão
 
 Manter o tema claro como padrão e disponibilizar o tema escuro como escolha persistente e acessível ao usuário.
+
+### 2026-09-05 — Correção da exibição de data e hora
+
+#### Objetivo
+
+Garantir que a data e a hora exibidas no cadastro de um incidente sejam exatas, pois minutos podem ser decisivos em uma situação operacional crítica.
+
+#### Contexto
+
+Um incidente criado às 09:47 estava sendo exibido aproximadamente às 12:42. O SQLite registra `CURRENT_TIMESTAMP` em UTC, e a primeira versão da interface mostrava esse valor sem conversão para o fuso operacional.
+
+#### Instrução
+
+Corrigir a exibição do horário para o fuso `America/Sao_Paulo`, preservando a data/hora em UTC no banco de dados.
+
+#### Resultado
+
+Foi criado um formatador centralizado de data/hora. A interface passou a converter os horários persistidos em UTC antes de exibi-los, e o Docker recebeu a configuração explícita do fuso operacional.
+
+#### Validação
+
+Um teste automatizado confirma que `2026-09-05 12:42:00` em UTC é exibido como `05/09/2026, 09:42` em São Paulo. A suíte passou com 4 testes, e o registro existente no contêiner foi confirmado com a hora corrigida.
+
+#### Decisão
+
+Manter UTC como referência de persistência e usar `America/Sao_Paulo` como fuso de apresentação configurável. Qualquer mudança futura que afete horários de incidentes deve incluir teste de fuso horário.

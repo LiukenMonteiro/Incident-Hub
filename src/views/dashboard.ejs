@@ -31,7 +31,7 @@
           <td><span class="badge severity-<%= incident.severity.toLowerCase() %>"><%= incident.severity %></span></td>
           <td><%= incident.assignee %></td>
           <td><span class="status"><i class="status-dot status-<%= incident.status.toLowerCase().replace(' ', '-') %>"></i><%= incident.status %></span></td>
-          <td><time datetime="<%= incident.updated_at %>"><%= incident.updated_at.replace('T', ' ').slice(0, 16) %></time></td>
+          <td><time datetime="<%= incident.updated_at %>"><%= formatDateTime(incident.updated_at) %></time></td>
         </tr><% }) %></tbody>
       </table></div>
     <% } else { %>

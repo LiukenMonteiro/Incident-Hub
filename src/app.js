@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('node:path');
+const { formatDateTime } = require('./formatters');
 const {
   SEVERITIES,
   createIncident,
@@ -14,6 +15,10 @@ function createApp(db) {
   app.set('views', path.join(__dirname, 'views'));
   app.use(express.urlencoded({ extended: false }));
   app.use(express.static(path.join(__dirname, 'public')));
+  app.use((_request, response, next) => {
+    response.locals.formatDateTime = formatDateTime;
+    next();
+  });
 
   app.get('/', (_request, response) => {
     response.render('dashboard', {

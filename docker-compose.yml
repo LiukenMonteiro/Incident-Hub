@@ -5,6 +5,7 @@ services:
       - "3000:3000"
     environment:
       DATABASE_PATH: /app/data/incident-hub.db
+      DISPLAY_TIME_ZONE: America/Sao_Paulo
     volumes:
       - incident-hub-data:/app/data
 

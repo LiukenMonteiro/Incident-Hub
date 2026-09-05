@@ -1,6 +1,7 @@
 const request = require('supertest');
 const { createApp } = require('../src/app');
 const { createDatabase, findIncidentById } = require('../src/db');
+const { formatDateTime } = require('../src/formatters');
 
 function testApplication() {
   const db = createDatabase(':memory:');
@@ -8,6 +9,10 @@ function testApplication() {
 }
 
 describe('Incident Hub', () => {
+  it('converte horários armazenados em UTC para o horário de São Paulo', () => {
+    expect(formatDateTime('2026-09-05 12:42:00')).toBe('05/09/2026, 09:42');
+  });
+
   it('exibe o dashboard', async () => {
     const { app } = testApplication();
     const response = await request(app).get('/');
