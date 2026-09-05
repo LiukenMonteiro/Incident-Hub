@@ -49,13 +49,15 @@ Era um dos requisitos ter um sistema aberto, sem autenticação, isso possa impa
 Seria enviar para pessaos proximas e de confiança para testar o sistema, em diferentes locais, eu mesmo tentaria em uma VM, faria uma auditoria com uma ia mais potente.
 
 ### 13. Como você avalia sua estratégia inicial?
-Minha abordagem foi boa para a criação da aplicação, primeiro eu planejei e arquitetei como seria tudo, inclusive visando tokens de IA, já que usaria apenas modelos gratis e foquei também em economia de tokens, desde a concepção do projeto eu foquei em confiabilidade e instabalidade, tanto se ia rodar em vários sistemas como se respeitava o que foi proposto, por isso pouco antes de iniciar o projeto eu foquei em programação orientada a testes (TDD)
+Minha abordagem foi boa para a criação da aplicação, primeiro eu planejei e arquitetei como seria tudo, inclusive visando tokens de IA, já que usaria apenas modelos gratis e foquei também em economia de tokens e em deixar um historico para a proxima IA que eu usaria, desde a concepção do projeto eu foquei em confiabilidade e instabalidade, tanto se ia rodar em vários sistemas como se respeitava o que foi proposto, por isso pouco antes de iniciar o projeto eu foquei em programação orientada a testes (TDD)
 
 ### 14. Aproximadamente quantas interações relevantes com IA foram necessárias?
 (1) Eu diria que as principais foram ao decidir como seria o projeto, explicar como seria a base, o que seria e como seria.
 (2) Depois veio a decisão de trabalhar voltado à testes
 (3) Onde eu subiria a aplicação, se seria no railways ou vercel com banco de dados externo, no fim acabei optando por railways pela forma como todo o sistema estava montado, a ia foi importante bessa tomada de decisão.
 (4) No fim pedi que a IA fizesse uma auditoria do meu projeto e se ele cumpria todos os requisitos do que foi proposto no hackaton.
+(5) e uma nova atualização que foi pedida quando tudo parecia fechado na aplicação, porém não quebrou
+
 
 No restante foram apenas tomadas de decisão de código e ela trabalhou dentro desse escopo geral.
 
