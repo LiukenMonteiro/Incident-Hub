@@ -173,6 +173,46 @@ describe('Incident Hub', () => {
     });
   });
 
+  describe('Exclusão de Incidentes', () => {
+    it('remove um incidente e redireciona para o dashboard', async () => {
+      const { app, db } = testApplication();
+      db.prepare(`
+        INSERT INTO incidents (identifier, title, description, severity, assignee, status)
+        VALUES ('INC-0001', 'Incidente temporário', 'Registro para exclusão.', 'Low', 'Ana', 'Open')
+      `).run();
+
+      const response = await request(app).post('/incidents/1/delete');
+
+      expect(response.status).toBe(302);
+      expect(response.headers.location).toBe('/?deleted=1');
+      expect(findIncidentById(db, 1)).toBeUndefined();
+    });
+  });
+
+  describe('Edição de Incidentes', () => {
+    it('atualiza título e descrição sem alterar status, severidade ou responsável', async () => {
+      const { app, db } = testApplication();
+      db.prepare(`
+        INSERT INTO incidents (identifier, title, description, severity, assignee, status)
+        VALUES ('INC-0001', 'Título antigo', 'Descrição antiga.', 'Critical', 'Ana', 'In Progress')
+      `).run();
+
+      const response = await request(app)
+        .post('/incidents/1/edit')
+        .type('form')
+        .send({ title: 'Título atualizado', description: 'Descrição atualizada com contexto.' });
+
+      expect(response.status).toBe(302);
+      expect(response.headers.location).toBe('/incidents/1?edited=1');
+      const incident = findIncidentById(db, 1);
+      expect(incident.title).toBe('Título atualizado');
+      expect(incident.description).toBe('Descrição atualizada com contexto.');
+      expect(incident.severity).toBe('Critical');
+      expect(incident.status).toBe('In Progress');
+      expect(incident.assignee).toBe('Ana');
+    });
+  });
+
   describe('Histórico de Alterações de Status (Requisito 8)', () => {
     it('registra e persiste histórico de transições com status anterior, novo status e data/hora', async () => {
       const { app, db } = testApplication();
@@ -249,6 +289,21 @@ describe('Incident Hub', () => {
       const secondCall = seedInitialData(db);
       expect(secondCall).toBe(false);
     });
+
+    it('oferece carregamento rápido de dados de exemplo no dashboard', async () => {
+      const { app, db } = testApplication();
+
+      const dashboardResponse = await request(app).get('/');
+      expect(dashboardResponse.status).toBe(200);
+      expect(dashboardResponse.text).toContain('Dados de teste');
+      expect(dashboardResponse.text).toContain('Use “Dados de teste”');
+
+      const seedResponse = await request(app).post('/seed-demo-data');
+      expect(seedResponse.status).toBe(302);
+      expect(findIncidentById(db, 1).title).toBe('Payment API instability');
+      expect(findIncidentById(db, 2).title).toBe('Reconciliation delay');
+      expect(findIncidentById(db, 3).title).toBe('Incorrect customer notification');
+    });
   });
 
   describe('Recursos Estáticos e Dinâmicos', () => {
@@ -260,7 +315,7 @@ describe('Incident Hub', () => {
 
       const dashboardResponse = await request(app).get('/');
       expect(dashboardResponse.text).toContain('id="incidents-results"');
-      expect(dashboardResponse.text).toContain('src="/filters.js"');
+      expect(dashboardResponse.text).toContain('src="/filters.js?v=6"');
     });
   });
 });

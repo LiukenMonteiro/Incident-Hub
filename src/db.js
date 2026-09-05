@@ -91,6 +91,16 @@ function updateIncidentStatus(db, id, newStatus) {
   return findIncidentById(db, id);
 }
 
+function updateIncidentDetails(db, id, details) {
+  const result = db.prepare(`
+    UPDATE incidents
+    SET title = ?, description = ?, updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `).run(details.title, details.description, id);
+
+  return result.changes > 0 ? findIncidentById(db, id) : undefined;
+}
+
 function getIncidentHistory(db, incidentId) {
   return db.prepare(`
     SELECT * FROM incident_history
@@ -101,6 +111,11 @@ function getIncidentHistory(db, incidentId) {
 
 function findIncidentById(db, id) {
   return db.prepare('SELECT * FROM incidents WHERE id = ?').get(id);
+}
+
+function deleteIncident(db, id) {
+  const result = db.prepare('DELETE FROM incidents WHERE id = ?').run(id);
+  return result.changes > 0;
 }
 
 function listIncidents(db, filters = {}) {
@@ -188,10 +203,12 @@ module.exports = {
   STATUSES,
   createDatabase,
   createIncident,
+  deleteIncident,
   findIncidentById,
   getIncidentHistory,
   incidentSummary,
   listIncidents,
   seedInitialData,
-  updateIncidentStatus
+  updateIncidentStatus,
+  updateIncidentDetails
 };

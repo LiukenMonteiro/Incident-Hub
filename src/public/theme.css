@@ -25,5 +25,15 @@
 :root[data-theme="dark"] .severity-critical { background: #53283a; color: #ffc6dc; }
 :root[data-theme="dark"] .description, :root[data-theme="dark"] td { color: #c6dce7; }
 :root[data-theme="dark"] .brand-mark { color: #0e2230; background: #a7ddfb; }
+:root[data-theme="dark"] .choice-field legend { color: #c4dce8; }
+:root[data-theme="dark"] .choice-card { border-color: #42677d; background: #102534; }
+:root[data-theme="dark"] .choice-card:has(input:checked), :root[data-theme="dark"] .status-form .choice-card:has(input:checked) { background: #17394c; }
+:root[data-theme="dark"] .choice-card input:checked + .choice-indicator { box-shadow: inset 0 0 0 3px #102534; }
+:root[data-theme="dark"] .filter-trigger { border-color: #42677d; background: #102534; color: var(--ink); }
+:root[data-theme="dark"] .filter-options { background: #142c3d; border-color: var(--line); }
+:root[data-theme="dark"] .filter-options button:hover, :root[data-theme="dark"] .filter-options a:hover, :root[data-theme="dark"] .filter-options button[aria-selected="true"], :root[data-theme="dark"] .filter-options a[aria-selected="true"] { background: #24475b; }
+:root[data-theme="dark"] .button-danger { color: #ffd6d0; background: #552e2a; }
+
+@media (max-width: 720px) { .detail-actions { align-items: stretch; flex-direction: column; gap: 16px; } .detail-action-group { flex-direction: column; } .detail-action-group .button, .detail-action-group form { width: 100%; } .detail-actions .button-danger { width: 100%; } }
 
 @media (max-width: 720px) { .theme-toggle-label { display: none; } .theme-toggle { min-width: 44px; justify-content: center; padding: .55rem; } }

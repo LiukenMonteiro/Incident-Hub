@@ -264,3 +264,29 @@ A suíte executou com 100% de aprovação via Vitest (14 testes passando). A apl
 #### Decisão
 
 O Desenvolvimento Orientado a Testes (TDD) passa a ser a metodologia padrão do projeto: qualquer nova funcionalidade, alteração de regra de negócio ou correção deverá ser orientada e protegida por testes funcionais reais prévios.
+
+### 2026-09-05 — CRUD complementar e recuperação dos filtros
+
+#### Objetivo
+
+Completar as ações de edição e exclusão e recuperar a filtragem por status e severidade após regressões na interação dos menus.
+
+#### Contexto
+
+As alterações visuais dos filtros inicialmente quebraram o clique das opções e a aplicação passou a manter todos os incidentes na lista. Também foi identificada uma rota de edição ausente na instância antiga do servidor.
+
+#### Instrução
+
+Adicionar edição de título e descrição, exclusão com confirmação e manter o filtro parcial sem recarregar o dashboard inteiro.
+
+#### Resultado
+
+Foi criada a rota e a tela de edição, com preservação de status, severidade e responsável. A exclusão remove o incidente e seu histórico em cascata. Os filtros passaram a usar links reais com query string como fallback; com JavaScript ativo, apenas `#incidents-results` é atualizado via AJAX.
+
+#### Validação
+
+A suíte passou com 17 testes. As URLs `/?status=Open`, `/?severity=Critical` e `/?status=Open&severity=Critical` foram verificadas com dados de teste. O HTML também foi conferido para garantir links reais de filtro.
+
+#### Decisão
+
+Manter a navegação server-side como caminho confiável e usar AJAX apenas como melhoria progressiva, evitando que uma falha visual ou de cache impeça a filtragem.

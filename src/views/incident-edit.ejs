@@ -1,0 +1,16 @@
+<%- include('partials/header') %>
+<main id="conteudo" class="page-shell narrow">
+  <a class="back-link" href="/incidents/<%= incident.id %>">← Voltar ao incidente</a>
+  <section class="form-intro reveal"><p class="eyebrow"><%= incident.identifier %> · edição</p><h1>Atualizar<br><em>o contexto do caso.</em></h1><p>Altere somente o título e a descrição. Status, severidade e responsável permanecem preservados.</p></section>
+  <section class="form-card reveal" aria-labelledby="form-title">
+    <h2 id="form-title">Editar incidente</h2>
+    <% if (errors.length) { %><div class="error-summary" role="alert"><strong>Revise os campos:</strong><ul><% errors.forEach((error) => { %><li><%= error %></li><% }) %></ul></div><% } %>
+    <form action="/incidents/<%= incident.id %>/edit" method="post">
+      <div class="field"><label for="title">Título <span aria-hidden="true">*</span></label><input id="title" name="title" value="<%= values.title || '' %>" maxlength="120" minlength="3" required autofocus></div>
+      <div class="field"><label for="description">Descrição <span aria-hidden="true">*</span></label><textarea id="description" name="description" rows="7" maxlength="1000" minlength="10" required><%= values.description || '' %></textarea><small>Atualize o impacto, o contexto ou as informações mais recentes.</small></div>
+      <div class="form-note"><span aria-hidden="true">●</span><p>Status atual: <strong><%= incident.status %></strong>. Severidade: <strong><%= incident.severity %></strong>.</p></div>
+      <button class="button button-primary button-wide" type="submit">Salvar alterações <span aria-hidden="true">→</span></button>
+    </form>
+  </section>
+</main>
+<%- include('partials/footer') %>

@@ -7,7 +7,7 @@ Este arquivo permite que outra IA ou pessoa retome o trabalho sem precisar infer
 ## Checkpoint atual
  
 - **Data:** 2026-09-05
-- **Etapa:** ciclo completo de incidentes (criação, filtros dinâmicos, transição de status com regra Critical, histórico persistido, métricas e seed inicial) coberto por suíte de testes funcionais
+- **Etapa:** ciclo completo de incidentes (criação, edição, exclusão, filtros parciais, transição de status com regra Critical, histórico persistido, métricas e seed inicial) coberto por suíte de testes funcionais
 - **Branch principal:** `main`
 - **Aplicação implementada:** sim — aplicação funcional completa atendendo a todos os requisitos técnicos essenciais
 - **Stack definida:** JavaScript, Node.js, Express, SQLite, Docker e Vitest
@@ -32,6 +32,8 @@ Este arquivo permite que outra IA ou pessoa retome o trabalho sem precisar infer
  - Um incidente de severidade Critical não pode ser resolvido diretamente a partir de Open; deve obrigatoriamente transitar por In Progress antes de Resolved.
  - Cada alteração de status gera um registro persistido no histórico (`incident_history`) contendo status anterior, novo status e data/hora, exibido em ordem cronológica na página de detalhes.
  - O dashboard apresenta as três métricas operacionais obrigatórias: incidentes em aberto, críticos pendentes e resolvidos.
+- A tela de detalhes permite editar título e descrição, preservando status, severidade e responsável; também permite excluir com confirmação.
+- Os filtros por status e severidade usam links com query string como fallback e, com JavaScript ativo, atualizam apenas `#incidents-results` via AJAX.
  - Caso a base de dados esteja vazia, a aplicação carrega automaticamente os 3 incidentes iniciais de exemplo (Payment API instability, Reconciliation delay, Incorrect customer notification).
  - O projeto adota oficialmente a metodologia de Desenvolvimento Orientado a Testes (TDD): novos requisitos, regras de negócio ou correções devem ser previamente estruturados com testes funcionais reais no Vitest.
  - A implementação seguirá marcos pequenos e verificáveis, com documentação atualizada quando relevante.
@@ -40,7 +42,7 @@ Este arquivo permite que outra IA ou pessoa retome o trabalho sem precisar infer
  
 ## Próxima ação recomendada
 
-Realizar validação manual e visual dos fluxos no navegador e avaliar possíveis melhorias ou registros no `AI_LOG.md`.
+Realizar validação manual e visual dos fluxos no navegador, especialmente filtros parciais, edição e exclusão, e avaliar possíveis melhorias ou registros no `AI_LOG.md`.
 
 ## Regras para continuidade
 

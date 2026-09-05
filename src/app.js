@@ -5,10 +5,13 @@ const {
   SEVERITIES,
   STATUSES,
   createIncident,
+  deleteIncident,
   findIncidentById,
   getIncidentHistory,
   incidentSummary,
   listIncidents,
+  seedInitialData,
+  updateIncidentDetails,
   updateIncidentStatus
 } = require('./db');
 
@@ -34,8 +37,18 @@ function createApp(db) {
       summary: incidentSummary(db),
       filters,
       severities: SEVERITIES,
-      statuses: STATUSES
+      statuses: STATUSES,
+      deleted: request.query.deleted === '1'
     });
+  });
+
+  app.post('/seed-demo-data', (_request, response) => {
+    const wasEmpty = seedInitialData(db);
+    if (!wasEmpty) {
+      return response.redirect('/?seed=already-loaded');
+    }
+
+    return response.redirect('/?seed=loaded');
   });
 
   app.get('/incidents/new', (_request, response) => {
@@ -64,6 +77,34 @@ function createApp(db) {
     return response.redirect(`/incidents/${incident.id}?created=1`);
   });
 
+  app.get('/incidents/:id/edit', (request, response) => {
+    const incident = findIncidentById(db, request.params.id);
+    if (!incident) return response.status(404).render('not-found');
+
+    return response.render('incident-edit', { incident, values: incident, errors: [] });
+  });
+
+  app.post('/incidents/:id/edit', (request, response) => {
+    const incident = findIncidentById(db, request.params.id);
+    if (!incident) return response.status(404).render('not-found');
+
+    const values = {
+      title: request.body.title?.trim(),
+      description: request.body.description?.trim()
+    };
+    const errors = [];
+
+    if (!values.title || values.title.length < 3) errors.push('Informe um título com pelo menos 3 caracteres.');
+    if (!values.description || values.description.length < 10) errors.push('Descreva o incidente com pelo menos 10 caracteres.');
+
+    if (errors.length) {
+      return response.status(422).render('incident-edit', { incident, values, errors });
+    }
+
+    updateIncidentDetails(db, incident.id, values);
+    return response.redirect(`/incidents/${incident.id}?edited=1`);
+  });
+
   app.get('/incidents/:id', (request, response) => {
     const incident = findIncidentById(db, request.params.id);
     if (!incident) return response.status(404).render('not-found');
@@ -74,6 +115,7 @@ function createApp(db) {
       statuses: STATUSES,
       error: null,
       created: request.query.created === '1',
+      edited: request.query.edited === '1',
       updated: request.query.updated === '1'
     });
   });
@@ -93,9 +135,18 @@ function createApp(db) {
         statuses: STATUSES,
         error: error.message,
         created: false,
+        edited: false,
         updated: false
       });
     }
+  });
+
+  app.post('/incidents/:id/delete', (request, response) => {
+    const incident = findIncidentById(db, request.params.id);
+    if (!incident) return response.status(404).render('not-found');
+
+    deleteIncident(db, incident.id);
+    return response.redirect('/?deleted=1');
   });
 
   return app;

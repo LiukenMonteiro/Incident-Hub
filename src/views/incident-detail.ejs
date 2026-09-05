@@ -1,7 +1,8 @@
 <%- include('partials/header') %>
-<main id="conteudo" class="page-shell narrow">
-  <a class="back-link" href="/">← Voltar ao painel</a>
+<main id="conteudo" class="page-shell detail-page">
+  <div class="detail-actions"><a class="back-link" href="/">← Voltar ao painel</a><div class="detail-action-group"><a class="button button-secondary" href="/incidents/<%= incident.id %>/edit">Editar incidente</a><form method="post" action="/incidents/<%= incident.id %>/delete" onsubmit="return confirm('Excluir este incidente? Esta ação não pode ser desfeita.');"><button class="button button-danger" type="submit">Excluir incidente</button></form></div></div>
   <% if (created) { %><div class="success-message" role="status">Incidente <strong><%= incident.identifier %></strong> criado com status Open.</div><% } %>
+  <% if (typeof edited !== 'undefined' && edited) { %><div class="success-message" role="status">Incidente <strong><%= incident.identifier %></strong> atualizado com sucesso.</div><% } %>
   <% if (typeof updated !== 'undefined' && updated) { %><div class="success-message" role="status">Status do incidente <strong><%= incident.identifier %></strong> atualizado com sucesso.</div><% } %>
   <% if (typeof error !== 'undefined' && error) { %><div class="error-summary" role="alert"><p><%= error %></p></div><% } %>
   <section class="detail-head reveal"><p class="eyebrow"><%= incident.identifier %> · criado em <%= formatDateTime(incident.created_at) %></p><div class="detail-title-row"><h1><%= incident.title %></h1><span class="badge severity-<%= incident.severity.toLowerCase() %>"><%= incident.severity %></span></div><span class="status"><i class="status-dot status-<%= incident.status.toLowerCase().replace(' ', '-') %>"></i><%= incident.status %></span></section>
@@ -18,15 +19,8 @@
         <div><dt>Status atual</dt><dd><%= incident.status %></dd></div>
       </dl>
       <form class="status-form" method="post" action="/incidents/<%= incident.id %>/status">
-        <label for="status-select">Alterar status</label>
-        <div class="status-action-row">
-          <select id="status-select" name="status">
-            <% (typeof statuses !== 'undefined' ? statuses : ['Open', 'In Progress', 'Resolved']).forEach((st) => { %>
-              <option value="<%= st %>" <%= incident.status === st ? 'selected' : '' %>><%= st %></option>
-            <% }) %>
-          </select>
-          <button class="button button-primary" type="submit">Salvar</button>
-        </div>
+        <fieldset class="choice-field"><legend>Alterar status</legend><div class="choice-grid choice-grid-status"><% (typeof statuses !== 'undefined' ? statuses : ['Open', 'In Progress', 'Resolved']).forEach((st) => { const statusClass = st.toLowerCase().replace(' ', '-'); %><label class="choice-card choice-status-<%= statusClass %>"><input type="radio" name="status" value="<%= st %>" <%= incident.status === st ? 'checked' : '' %> required><span class="choice-indicator" aria-hidden="true"></span><span><strong><%= st %></strong><small><%= st === 'Open' ? 'Aguardando tratamento' : st === 'In Progress' ? 'Em atendimento' : 'Tratamento concluído' %></small></span></label><% }) %></div></fieldset>
+        <button class="button button-primary button-wide" type="submit">Salvar status</button>
       </form>
     </aside>
   </section>

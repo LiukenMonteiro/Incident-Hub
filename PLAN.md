@@ -9,7 +9,7 @@ O Incident Hub será uma aplicação web pequena para registrar e acompanhar inc
 ### Obrigatório
 
 - Operação em um único ambiente compartilhado por uma pequena equipe de operações.
-- Interface web para criar, listar, visualizar e atualizar incidentes.
+- Interface web para criar, listar, visualizar, editar e excluir incidentes.
 - Campos essenciais: título, descrição, status, severidade, responsável e datas relevantes.
 - Datas e horas armazenadas em UTC e exibidas com precisão no fuso operacional `America/Sao_Paulo`.
 - Persistência em SQLite após reiniciar o contêiner Docker.
@@ -23,6 +23,7 @@ O Incident Hub será uma aplicação web pequena para registrar e acompanhar inc
 - Linha do tempo de atualizações do incidente.
 - Interface responsiva, acessível e com tema escuro persistente para reduzir o cansaço visual em turnos noturnos.
 - Dados de exemplo e histórico simples de alterações.
+- Filtros por status e severidade com atualização parcial da lista e fallback por URL.
 
 ### Fora de escopo
 
@@ -86,7 +87,7 @@ Também cobrirão a conversão de horários UTC para o fuso operacional, pois a 
 
 - O projeto inicia com um único comando Docker documentado em ambiente compatível.
 - Um incidente válido pode ser criado e aparece na lista.
-- Um incidente pode ser aberto e atualizado; alterações permanecem após reiniciar o contêiner.
+- Um incidente pode ser aberto, editado, atualizado e excluído com confirmação; alterações permanecem após reiniciar o contêiner.
 - A data/hora exibida de um incidente corresponde ao horário operacional configurado.
 - Campos obrigatórios inválidos não criam registros incompletos e exibem feedback.
 - Os testes automatizados dos fluxos críticos passam.

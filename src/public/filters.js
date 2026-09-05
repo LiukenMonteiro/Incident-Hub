@@ -11,6 +11,59 @@
 
   let currentAbortController = null;
 
+  function syncFilterMenu(select) {
+    if (!select) return;
+    const menu = document.querySelector(`[data-filter-menu="${select.name}"]`);
+    if (!menu) return;
+    const selectedOption = Array.from(menu.querySelectorAll('[role="option"]'))
+      .find((option) => option.dataset.value === select.value);
+    const trigger = menu.querySelector('.filter-trigger');
+    if (selectedOption && trigger) {
+      trigger.innerHTML = selectedOption.innerHTML;
+      menu.querySelectorAll('[role="option"]').forEach((option) => {
+        option.setAttribute('aria-selected', option === selectedOption ? 'true' : 'false');
+      });
+    }
+  }
+
+  function closeFilterMenus() {
+    document.querySelectorAll('.filter-menu.is-open').forEach((menu) => {
+      menu.classList.remove('is-open');
+      menu.querySelector('.filter-trigger')?.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  document.querySelectorAll('.filter-menu').forEach((menu) => {
+    const trigger = menu.querySelector('.filter-trigger');
+    trigger?.addEventListener('click', () => {
+      const isOpen = menu.classList.contains('is-open');
+      closeFilterMenus();
+      if (!isOpen) {
+        menu.classList.add('is-open');
+        trigger.setAttribute('aria-expanded', 'true');
+      }
+    });
+    menu.querySelectorAll('[role="option"]').forEach((option) => {
+      option.addEventListener('click', (event) => {
+        event.preventDefault();
+        const url = new URL(option.href, window.location.origin);
+        if (statusSelect) statusSelect.value = url.searchParams.get('status') || '';
+        if (severitySelect) severitySelect.value = url.searchParams.get('severity') || '';
+        syncFilterMenu(statusSelect);
+        syncFilterMenu(severitySelect);
+        closeFilterMenus();
+        updateResults(`${url.pathname}${url.search}`, true);
+      });
+    });
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!event.target.closest('.filter-menu')) closeFilterMenus();
+  });
+
+  syncFilterMenu(statusSelect);
+  syncFilterMenu(severitySelect);
+
   async function updateResults(url, push = true) {
     if (currentAbortController) {
       currentAbortController.abort();
@@ -82,6 +135,8 @@
       event.preventDefault();
       if (statusSelect) statusSelect.value = '';
       if (severitySelect) severitySelect.value = '';
+      syncFilterMenu(statusSelect);
+      syncFilterMenu(severitySelect);
       updateResults('/', true);
     }
   });
@@ -90,6 +145,8 @@
     const urlParams = new URLSearchParams(window.location.search);
     if (statusSelect) statusSelect.value = urlParams.get('status') || '';
     if (severitySelect) severitySelect.value = urlParams.get('severity') || '';
+    syncFilterMenu(statusSelect);
+    syncFilterMenu(severitySelect);
     updateResults(window.location.pathname + window.location.search, false);
   });
 })();
