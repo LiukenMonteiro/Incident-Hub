@@ -1,6 +1,19 @@
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 const request = require('supertest');
 const { createApp } = require('../src/app');
-const { createDatabase, findIncidentById, getIncidentHistory, getIncidentTimeline, seedDemoData, seedInitialData } = require('../src/db');
+const {
+  createDatabase,
+  createIncident,
+  createIncidentComment,
+  findIncidentById,
+  getIncidentHistory,
+  getIncidentTimeline,
+  seedDemoData,
+  seedInitialData,
+  updateIncidentStatus
+} = require('../src/db');
 const { formatDateTime } = require('../src/formatters');
 
 function testApplication() {
@@ -306,9 +319,13 @@ describe('Incident Hub', () => {
 
       const detailResponse = await request(app).get('/incidents/1');
       expect(detailResponse.status).toBe(200);
-      expect(detailResponse.text).toContain('Open');
-      expect(detailResponse.text).toContain('In Progress');
-      expect(detailResponse.text).toContain('Resolved');
+      expect(detailResponse.text).toContain('Histórico de atividade');
+      const statusEvents = detailResponse.text.match(/class="history-change"/g) || [];
+      expect(statusEvents.length).toBe(2);
+      expect(detailResponse.text).toContain('history-arrow');
+      expect(detailResponse.text).toContain('status-open');
+      expect(detailResponse.text).toContain('status-in-progress');
+      expect(detailResponse.text).toContain('status-resolved');
     });
   });
 
@@ -386,6 +403,132 @@ describe('Incident Hub', () => {
       expect(db.prepare('SELECT COUNT(*) AS count FROM incidents').get().count).toBe(4);
       expect(findIncidentById(db, 1).title).toBe('Incidente do avaliador');
       expect(seedDemoData(db)).toBe(false);
+    });
+  });
+
+  describe('Linha do Tempo de Atividade (Requisito 10)', () => {
+    it('intercala comentários e mudanças de status em ordem cronológica', async () => {
+      const { app, db } = testApplication();
+      db.prepare(`
+        INSERT INTO incidents (identifier, title, description, severity, assignee, status)
+        VALUES ('INC-0001', 'Falha de integração', 'Investigando a causa.', 'High', 'Ana', 'Open')
+      `).run();
+      db.prepare(`UPDATE incidents SET created_at = '2026-09-05 09:00:00', updated_at = '2026-09-05 09:00:00' WHERE id = 1`).run();
+
+      await request(app).post('/incidents/1/comments').type('form').send({ author: 'Ana', content: 'Triagem iniciada.' });
+      db.prepare(`UPDATE incident_comments SET created_at = '2026-09-05 09:10:00' WHERE incident_id = 1`).run();
+      await request(app).post('/incidents/1/status').type('form').send({ status: 'In Progress' });
+      db.prepare(`UPDATE incident_history SET changed_at = '2026-09-05 09:20:00' WHERE incident_id = 1`).run();
+      await request(app).post('/incidents/1/comments').type('form').send({ author: 'Bruno', content: 'Root cause identificada.' });
+      db.prepare(`UPDATE incident_comments SET created_at = '2026-09-05 09:30:00' WHERE content = 'Root cause identificada.'`).run();
+      await request(app).post('/incidents/1/status').type('form').send({ status: 'Resolved' });
+      db.prepare(`UPDATE incident_history SET changed_at = '2026-09-05 09:40:00' WHERE from_status = 'In Progress'`).run();
+
+      const timeline = getIncidentTimeline(db, 1);
+      expect(timeline.map((item) => item.event_type)).toEqual(['comment', 'status', 'comment', 'status']);
+      expect(timeline[0]).toMatchObject({ event_type: 'comment', author: 'Ana', content: 'Triagem iniciada.' });
+      expect(timeline[1]).toMatchObject({ event_type: 'status', from_status: 'Open', to_status: 'In Progress' });
+      expect(timeline[2]).toMatchObject({ event_type: 'comment', author: 'Bruno', content: 'Root cause identificada.' });
+      expect(timeline[3]).toMatchObject({ event_type: 'status', from_status: 'In Progress', to_status: 'Resolved' });
+    });
+
+    it('mantém ordem determinística quando status e comentário ocorrem na mesma data/hora', async () => {
+      const { app, db } = testApplication();
+      db.prepare(`
+        INSERT INTO incidents (identifier, title, description, severity, assignee, status)
+        VALUES ('INC-0001', 'Falha de integração', 'Investigando a causa.', 'High', 'Ana', 'Open')
+      `).run();
+
+      await request(app).post('/incidents/1/comments').type('form').send({ author: 'Ana', content: 'Evento simultâneo.' });
+      db.prepare(`UPDATE incident_comments SET created_at = '2026-09-05 10:00:00' WHERE incident_id = 1`).run();
+      await request(app).post('/incidents/1/status').type('form').send({ status: 'In Progress' });
+      db.prepare(`UPDATE incident_history SET changed_at = '2026-09-05 10:00:00' WHERE incident_id = 1`).run();
+
+      const timeline = getIncidentTimeline(db, 1);
+      expect(timeline.length).toBe(2);
+      expect(timeline.map((item) => item.event_type)).toEqual(['status', 'comment']);
+    });
+
+    it('renderiza mudanças de status e comentários com marcações distintas', async () => {
+      const { app, db } = testApplication();
+      db.prepare(`
+        INSERT INTO incidents (identifier, title, description, severity, assignee, status)
+        VALUES ('INC-0001', 'Falha de integração', 'Investigando a causa.', 'High', 'Ana', 'Open')
+      `).run();
+
+      await request(app).post('/incidents/1/comments').type('form').send({ author: 'Ana', content: 'Provider contacted.' });
+      await request(app).post('/incidents/1/status').type('form').send({ status: 'In Progress' });
+
+      const response = await request(app).get('/incidents/1');
+      expect(response.status).toBe(200);
+      expect(response.text).toContain('Histórico de atividade');
+      expect((response.text.match(/class="history-change"/g) || []).length).toBe(1);
+      expect(response.text).toContain('history-arrow');
+      expect(response.text).toContain('history-comment');
+      expect(response.text).toContain('Ana comentou:');
+      expect(response.text).toContain('“Provider contacted.”');
+    });
+
+    it('exibe mensagem de linha do tempo vazia quando não há atividades', async () => {
+      const { app, db } = testApplication();
+      db.prepare(`
+        INSERT INTO incidents (identifier, title, description, severity, assignee, status)
+        VALUES ('INC-0001', 'Falha isolada', 'Sem atividades ainda.', 'Low', 'Ana', 'Open')
+      `).run();
+
+      expect(getIncidentTimeline(db, 1)).toEqual([]);
+
+      const response = await request(app).get('/incidents/1');
+      expect(response.status).toBe(200);
+      expect(response.text).toContain('Nenhuma atividade registrada até o momento.');
+    });
+
+    it('remove histórico de status e comentários em cascata ao excluir o incidente', async () => {
+      const { app, db } = testApplication();
+      db.prepare(`
+        INSERT INTO incidents (identifier, title, description, severity, assignee, status)
+        VALUES ('INC-0001', 'Incidente para exclusão', 'Registro com atividades.', 'Medium', 'Ana', 'Open')
+      `).run();
+
+      await request(app).post('/incidents/1/comments').type('form').send({ author: 'Ana', content: 'Acompanhamento registrado.' });
+      await request(app).post('/incidents/1/status').type('form').send({ status: 'In Progress' });
+
+      expect(db.prepare('SELECT COUNT(*) AS count FROM incident_history WHERE incident_id = 1').get().count).toBe(1);
+      expect(db.prepare('SELECT COUNT(*) AS count FROM incident_comments WHERE incident_id = 1').get().count).toBe(1);
+
+      const response = await request(app).post('/incidents/1/delete');
+      expect(response.status).toBe(302);
+
+      expect(db.prepare('SELECT COUNT(*) AS count FROM incident_history').get().count).toBe(0);
+      expect(db.prepare('SELECT COUNT(*) AS count FROM incident_comments').get().count).toBe(0);
+      expect(getIncidentTimeline(db, 1)).toEqual([]);
+    });
+
+    it('persiste linha do tempo, histórico e comentários ao reabrir a base em disco', () => {
+      const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'incident-hub-'));
+      const databasePath = path.join(tempDirectory, 'incident-hub.db');
+
+      let db = createDatabase(databasePath);
+      const incident = createIncident(db, {
+        title: 'Instabilidade persistente',
+        description: 'Registro usado para validar a persistência da linha do tempo.',
+        severity: 'High',
+        assignee: 'Ana'
+      });
+      createIncidentComment(db, incident.id, { author: 'Ana', content: 'Persistência validada.' });
+      db.prepare(`UPDATE incident_comments SET created_at = '2026-09-05 10:00:00' WHERE incident_id = ?`).run(incident.id);
+      updateIncidentStatus(db, incident.id, 'In Progress');
+      db.prepare(`UPDATE incident_history SET changed_at = '2026-09-05 10:05:00' WHERE incident_id = ?`).run(incident.id);
+      db.close();
+
+      db = createDatabase(databasePath);
+      const timeline = getIncidentTimeline(db, incident.id);
+      expect(timeline.map((item) => item.event_type)).toEqual(['comment', 'status']);
+      expect(db.prepare('SELECT COUNT(*) AS count FROM incident_history').get().count).toBe(1);
+      expect(db.prepare('SELECT COUNT(*) AS count FROM incident_comments').get().count).toBe(1);
+      db.close();
+
+      fs.rmSync(tempDirectory, { recursive: true, force: true });
     });
   });
 

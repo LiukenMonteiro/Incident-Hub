@@ -136,14 +136,14 @@ function getIncidentComments(db, incidentId) {
 
 function getIncidentTimeline(db, incidentId) {
   return db.prepare(`
-    SELECT id, 'status' AS event_type, from_status, to_status, NULL AS author, NULL AS content, changed_at AS event_at
+    SELECT id, 'status' AS event_type, from_status, to_status, NULL AS author, NULL AS content, changed_at AS event_at, 0 AS event_rank
     FROM incident_history
     WHERE incident_id = ?
     UNION ALL
-    SELECT id, 'comment' AS event_type, NULL AS from_status, NULL AS to_status, author, content, created_at AS event_at
+    SELECT id, 'comment' AS event_type, NULL AS from_status, NULL AS to_status, author, content, created_at AS event_at, 1 AS event_rank
     FROM incident_comments
     WHERE incident_id = ?
-    ORDER BY 7 ASC, 1 ASC
+    ORDER BY 7 ASC, 8 ASC, 1 ASC
   `).all(incidentId, incidentId);
 }
 
