@@ -7,14 +7,14 @@ Este arquivo permite que outra IA ou pessoa retome o trabalho sem precisar infer
 ## Checkpoint atual
  
 - **Data:** 2026-09-05
-- **Etapa:** dashboard, criação e filtros dinâmicos de incidentes implementados
+- **Etapa:** ciclo completo de incidentes (criação, filtros dinâmicos, transição de status com regra Critical, histórico persistido, métricas e seed inicial) coberto por suíte de testes funcionais
 - **Branch principal:** `main`
-- **Aplicação implementada:** sim — dashboard, criação de incidentes e filtros dinâmicos
+- **Aplicação implementada:** sim — aplicação funcional completa atendendo a todos os requisitos técnicos essenciais
 - **Stack definida:** JavaScript, Node.js, Express, SQLite, Docker e Vitest
  
  ## O que já existe
  
- - `README.md`: identificação do repositório.
+ - `README.md`: identificação do repositório, guia de uso com Docker e documentação da aplicação.
  - `START.md`: ponto de entrada e convenções iniciais.
  - `PLAN.md`: primeira versão do plano de desenvolvimento.
  
@@ -29,13 +29,17 @@ Este arquivo permite que outra IA ou pessoa retome o trabalho sem precisar infer
  - O dashboard possui tema claro e um tema escuro persistente, salvo no `localStorage` do navegador para conforto em turnos noturnos.
  - Datas e horas são persistidas em UTC e exibidas no fuso operacional `America/Sao_Paulo`; precisão de horário é requisito crítico.
  - A filtragem de incidentes por status e severidade é dinâmica no cliente, sem recarregar a página nem reiniciar a posição de rolagem, com histórico e fallback para formulário tradicional.
+ - Um incidente de severidade Critical não pode ser resolvido diretamente a partir de Open; deve obrigatoriamente transitar por In Progress antes de Resolved.
+ - Cada alteração de status gera um registro persistido no histórico (`incident_history`) contendo status anterior, novo status e data/hora, exibido em ordem cronológica na página de detalhes.
+ - O dashboard apresenta as três métricas operacionais obrigatórias: incidentes em aberto, críticos pendentes e resolvidos.
+ - Caso a base de dados esteja vazia, a aplicação carrega automaticamente os 3 incidentes iniciais de exemplo (Payment API instability, Reconciliation delay, Incorrect customer notification).
  - A implementação seguirá marcos pequenos e verificáveis, com documentação atualizada quando relevante.
  - Commits devem ser descritivos.
  - Informações sensíveis e dados reais de incidentes não devem ser versionados.
-
+ 
 ## Próxima ação recomendada
 
-Implementar a atualização de incidentes: permitir alterar o status entre Open, In Progress e Resolved, atualizar a data/hora de modificação e cobrir o fluxo com testes.
+Realizar validação manual e visual dos fluxos no navegador e avaliar possíveis melhorias ou registros no `AI_LOG.md`.
 
 ## Regras para continuidade
 
